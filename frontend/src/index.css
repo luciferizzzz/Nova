@@ -1,0 +1,165 @@
+:root {
+  --bg: #0a0a0a;
+  --panel: #121212;
+  --border: #2a2a2a;
+  --accent: #8b1e1e;
+  --accent-bright: #c44536;
+  --text: #e8e8e8;
+  --text-dim: #9a9a9a;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 40px 48px 28px;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+}
+
+.panel h1 {
+  font-size: 40px;
+  letter-spacing: 6px;
+  text-align: center;
+}
+
+.subtitle {
+  text-align: center;
+  color: var(--accent-bright);
+  letter-spacing: 3px;
+  font-size: 12px;
+  margin-bottom: 20px;
+}
+
+.panel p.dim {
+  color: var(--text-dim);
+  text-align: center;
+  margin-bottom: 24px;
+  font-size: 14px;
+}
+
+input[type='password'] {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 12px;
+  background: #0a0a0a;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 14px;
+  outline: none;
+}
+
+input[type='password']:focus {
+  border-color: var(--accent-bright);
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  color: #fff;
+  border-radius: 8px;
+  font-size: 14px;
+  letter-spacing: 2px;
+  cursor: pointer;
+}
+
+button:hover:not(:disabled) {
+  background: var(--accent-bright);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+button.logout {
+  width: auto;
+  padding: 6px 14px;
+  font-size: 11px;
+  background: transparent;
+  border-color: var(--border);
+  color: var(--text-dim);
+}
+
+button.logout:hover:not(:disabled) {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.row h1 {
+  flex: 1;
+}
+
+.error {
+  color: var(--accent-bright);
+  font-size: 13px;
+  text-align: center;
+  margin: 0 0 12px;
+}
+
+.hint {
+  color: var(--text-dim);
+  font-size: 11px;
+  text-align: center;
+  margin-top: 14px;
+  letter-spacing: 1px;
+}
+
+.badges {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.badges span {
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-size: 10px;
+  letter-spacing: 2px;
+}
+
+.status {
+  margin-top: 20px;
+  background: #080808;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  font-size: 12px;
+  color: #7fe08b;
+  overflow-x: auto;
+}

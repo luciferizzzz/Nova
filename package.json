@@ -1,0 +1,24 @@
+{
+  "name": "nova",
+  "version": "0.1.0",
+  "description": "NOVA — Local News Intelligence System",
+  "private": true,
+  "type": "commonjs",
+  "bin": {
+    "nova": "./cli/nova.js"
+  },
+  "scripts": {
+    "nova": "node cli/nova.js",
+    "dev": "node cli/nova.js",
+    "backend": "node backend/server.js",
+    "frontend": "npm --prefix frontend run dev"
+  },
+  "keywords": [
+    "news",
+    "rss",
+    "local-first",
+    "intelligence",
+    "dashboard"
+  ],
+  "license": "MIT"
+}
