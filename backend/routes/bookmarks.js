@@ -6,10 +6,10 @@ router.get('/', (req, res) => {
   const bookmarks = req.db
     .prepare(
       `
-      SELECT b.*, (b.id IS NOT NULL) AS bookmarked
-      FROM bookmarks b
-      JOIN berita a ON a.id = b.article_id
-      ORDER BY b.created_at DESC
+      SELECT a.*, bm.id AS bookmark_id
+      FROM bookmarks bm
+      JOIN berita a ON a.id = bm.article_id
+      ORDER BY bm.created_at DESC
     `
     )
     .all()

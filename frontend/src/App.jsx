@@ -1,94 +1,64 @@
-import { useState, useEffect } from 'react'
-import { login, logout } from './services/api'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { AuthProvider, useAuth } from './context/AuthContext'
+import { I18nProvider } from './i18n'
+import MainLayout from './layouts/MainLayout'
+import LoginPage from './pages/LoginPage'
+import Dashboard from './pages/Dashboard'
+import AllNews from './pages/AllNews'
+import ArticleDetail from './pages/ArticleDetail'
+import Search from './pages/Search'
+import Sources from './pages/Sources'
+import Bookmarks from './pages/Bookmarks'
+import Settings from './pages/Settings'
+import About from './pages/About'
+import Export from './pages/Export'
+import Import from './pages/Import'
+import Placeholder from './pages/Placeholder'
+import Loading from './components/Loading'
 
-const DEFAULT_PASSWORD = '123456'
+function RequireAuth({ children }) {
+  const { authed } = useAuth()
+  if (authed === null) return <Loading text="Checking session…" />
+  if (!authed) return <Navigate to="/login" replace />
+  return children
+}
 
 export default function App() {
-  const [authed, setAuthed] = useState(null)
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [busy, setBusy] = useState(false)
-  const [status, setStatus] = useState(null)
-
-  useEffect(() => {
-    fetch('/api/auth/status')
-      .then((r) => r.json())
-      .then((d) => setAuthed(d.authenticated))
-  }, [])
-
-  const handleLogin = async (e) => {
-    e.preventDefault()
-    setBusy(true)
-    setError('')
-    try {
-      await login(password)
-      setAuthed(true)
-      setPassword('')
-    } catch (err) {
-      setError(err.message || 'Login failed')
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  const handleLogout = async () => {
-    await logout()
-    setAuthed(false)
-    setStatus(null)
-  }
-
-  const checkStatus = async () => {
-    const res = await fetch('/api/status')
-    const data = await res.json()
-    setStatus(data)
-  }
-
   return (
-    <div className="app">
-      {authed === null ? (
-        <div className="panel">
-          <h1>NOVA</h1>
-          <div className="subtitle">LOCAL NEWS INTELLIGENCE</div>
-          <p className="dim">Loading…</p>
-        </div>
-      ) : authed ? (
-        <div className="panel">
-          <div className="row">
-            <h1>NOVA</h1>
-            <button className="logout" onClick={handleLogout}>
-              LOGOUT
-            </button>
-          </div>
-          <div className="subtitle">LOCAL NEWS INTELLIGENCE</div>
-          <p className="dim">Phase 2 — Authentication. Session aktif.</p>
-          <button onClick={checkStatus}>Check Server Status</button>
-          {status && (
-            <pre className="status">{JSON.stringify(status, null, 2)}</pre>
-          )}
-        </div>
-      ) : (
-        <form className="panel" onSubmit={handleLogin}>
-          <h1>NOVA</h1>
-          <div className="subtitle">LOCAL NEWS INTELLIGENCE</div>
-          <p className="dim">Enter your password to continue</p>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password"
-            autoFocus
-          />
-          {error && <div className="error">{error}</div>}
-          <button type="submit" disabled={busy || !password}>
-            {busy ? 'VERIFYING…' : 'LOGIN'}
-          </button>
-          <div className="badges">
-            <span>LOCAL INSTANCE</span>
-            <span>NO ACCOUNT REQUIRED</span>
-          </div>
-          {!password && <div className="hint">Default password: {DEFAULT_PASSWORD}</div>}
-        </form>
-      )}
-    </div>
+    <AuthProvider>
+      <I18nProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route
+              element={
+                <RequireAuth>
+                  <MainLayout />
+                </RequireAuth>
+              }
+            >
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/news" element={<AllNews />} />
+              <Route path="/berita/:slug" element={<ArticleDetail />} />
+              <Route path="/search" element={<Search />} />
+              <Route path="/sources" element={<Sources />} />
+              <Route path="/bookmarks" element={<Bookmarks />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/map" element={<Placeholder />} />
+              <Route path="/timeline" element={<Placeholder />} />
+              <Route path="/analytics" element={<Placeholder />} />
+              <Route path="/categories" element={<Placeholder />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/tools/ai" element={<Placeholder />} />
+              <Route path="/tools/searches" element={<Placeholder />} />
+              <Route path="/tools/watchlist" element={<Placeholder />} />
+              <Route path="/tools/export" element={<Export />} />
+              <Route path="/tools/import" element={<Import />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </I18nProvider>
+    </AuthProvider>
   )
 }

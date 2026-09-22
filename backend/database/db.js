@@ -19,6 +19,9 @@ function seedDefaultAuth(db) {
 function seedDefaultSettings(db) {
   const insert = db.prepare('INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)')
   insert.run('rss_refresh_interval', String(config.rssRefreshInterval))
+  insert.run('language', 'en')
+  insert.run('country', 'Indonesia')
+  insert.run('theme', 'dark')
 }
 
 function initDatabase() {

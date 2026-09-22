@@ -9,6 +9,36 @@ function parseLimit(value) {
   return Number.isInteger(limit) && limit > 0 ? Math.min(limit, 500) : 50
 }
 
+router.get('/stats', (req, res) => {
+  const count = (sql) => req.db.prepare(sql).get().count
+
+  const articles = count('SELECT COUNT(*) AS count FROM berita')
+  const today = count("SELECT COUNT(*) AS count FROM berita WHERE date(created_at) = date('now')")
+  const sourcesTotal = count('SELECT COUNT(*) AS count FROM sources')
+  const sourcesActive = count('SELECT COUNT(*) AS count FROM sources WHERE enabled = 1')
+  const events = count('SELECT COUNT(*) AS count FROM events')
+  const countries = count('SELECT COUNT(DISTINCT negara) AS count FROM berita')
+  const lastUpdate = req.db.prepare('SELECT MAX(created_at) AS value FROM berita').get().value
+  const dbSize = (() => {
+    try {
+      return require('fs').statSync(require('../config').databasePath).size
+    } catch {
+      return 0
+    }
+  })()
+
+  res.json({
+    articles,
+    today,
+    sourcesTotal,
+    sourcesActive,
+    events,
+    countries,
+    lastUpdate,
+    dbSize
+  })
+})
+
 router.get('/', (req, res) => {
   const { negara, kategori, bahasa, sumber, q, from, to } = req.query
   const limit = parseLimit(req.query.limit)

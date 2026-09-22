@@ -13,6 +13,7 @@ const beritaRoutes = require('./routes/berita')
 const sourcesRoutes = require('./routes/sources')
 const settingRoutes = require('./routes/setting')
 const bookmarksRoutes = require('./routes/bookmarks')
+const dataRoutes = require('./routes/data')
 const { requireAuth } = require('./middleware/auth')
 const { ensureDefaultSources, fetchAllSources } = require('./services/rssFetcher')
 const { startScheduler, stopScheduler } = require('./services/scheduler')
@@ -30,10 +31,19 @@ function createServer() {
     url: `http://${config.host}:${config.port}`
   }
 
-  app.use(helmet())
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+          'img-src': ["'self'", 'data:', 'https:']
+        }
+      }
+    })
+  )
   app.use(compression())
   app.use(cors())
-  app.use(express.json())
+  app.use(express.json({ limit: '50mb' }))
   app.use(cookieParser())
 
   app.use((req, res, next) => {
@@ -48,6 +58,7 @@ function createServer() {
   app.use('/api/sources', requireAuth, sourcesRoutes)
   app.use('/api/setting', requireAuth, settingRoutes)
   app.use('/api/bookmarks', requireAuth, bookmarksRoutes)
+  app.use('/api', requireAuth, dataRoutes)
 
   app.get('/api/status', requireAuth, (req, res) => {
     res.json(req.app.locals.novaStatus)
@@ -66,7 +77,7 @@ function createServer() {
   }
 
   app.use((err, req, res, next) => {
-    console.error('[NOVA] Unhandled error:', err)
+    console.error('[NOVA] Unhandled error:', err && err.message ? err.message : String(err))
     res.status(500).json({ error: 'Internal server error' })
   })
 
