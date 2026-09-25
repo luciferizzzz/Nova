@@ -25,6 +25,7 @@ export default function Sidebar() {
         { to: '/news', key: 'nav.allNews' },
         { to: '/bookmarks', key: 'nav.bookmarks' },
         { to: '/categories', key: 'nav.categories' },
+        { to: '/events', key: 'nav.events' },
         { to: '/sources', key: 'nav.sources' },
         { to: '/map', key: 'nav.mapView' },
         { to: '/timeline', key: 'nav.timeline' },

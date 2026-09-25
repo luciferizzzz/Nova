@@ -4,6 +4,7 @@ const http = require('http')
 const net = require('net')
 const fs = require('fs')
 const path = require('path')
+const { execFile } = require('child_process')
 const { startServer } = require('../backend/server')
 const config = require('../backend/config')
 
@@ -103,6 +104,81 @@ function cmdDoctor() {
   console.log('')
 }
 
+function findPidsOnPort(port) {
+  return new Promise((resolve) => {
+    if (process.platform !== 'win32') {
+      execFile('lsof', ['-ti', `tcp:${port}`], (err, stdout) => {
+        if (err || !stdout) return resolve([])
+        resolve(
+          stdout
+            .split(/\r?\n/)
+            .map((l) => parseInt(l.trim(), 10))
+            .filter((n) => Number.isInteger(n) && n > 0)
+        )
+      })
+      return
+    }
+    execFile('netstat', ['-ano'], (err, stdout) => {
+      if (err) return resolve([])
+      const pids = []
+      for (const line of stdout.split(/\r?\n/)) {
+        if (!/LISTENING/i.test(line)) continue
+        const parts = line.trim().split(/\s+/)
+        const addr = parts[1] || ''
+        const m = addr.match(/:(\d+)$/)
+        if (m && parseInt(m[1], 10) === port) {
+          const pid = parseInt(parts[4], 10)
+          if (Number.isInteger(pid) && pid > 0) pids.push(pid)
+        }
+      }
+      resolve([...new Set(pids)])
+    })
+  })
+}
+
+function killPids(pids) {
+  for (const pid of pids) {
+    if (process.platform === 'win32') execFile('taskkill', ['/PID', String(pid), '/F', '/T'])
+    else process.kill(pid, 'SIGTERM')
+  }
+}
+
+async function cmdStop() {
+  const alive = await checkPort(config.host, config.port)
+  if (!alive) {
+    console.log('\nNOVA is not running.')
+    console.log('')
+    return
+  }
+
+  const health = await fetchHealth()
+  if (!(health.ok && health.body && health.body.service === 'nova')) {
+    console.log(`\nPort ${config.port} is in use by another application — nothing stopped.`)
+    console.log('')
+    return
+  }
+
+  const pids = await findPidsOnPort(config.port)
+  if (pids.length === 0) {
+    console.log('\nNOVA health check passed but the process could not be located.')
+    console.log('')
+    return
+  }
+
+  killPids(pids)
+  const deadline = Date.now() + 8000
+  while (Date.now() < deadline) {
+    const stillUp = await checkPort(config.host, config.port)
+    if (!stillUp) break
+    await new Promise((r) => setTimeout(r, 300))
+  }
+
+  const left = await checkPort(config.host, config.port)
+  console.log('')
+  console.log(left ? 'NOVA could not be stopped (check the process manually).' : 'NOVA stopped.')
+  console.log('')
+}
+
 function openBrowser(url) {
   const opener = process.platform === 'win32' ? 'start' : process.platform === 'darwin' ? 'open' : 'xdg-open'
   const { exec } = require('child_process')
@@ -120,17 +196,31 @@ async function waitUntilUp(timeoutMs = 15000) {
 }
 
 function cmdStart() {
-  try {
-    startServer()
-    const url = baseUrl()
-    waitUntilUp().then((ready) => {
-      console.log(`\n  ▶ NOVA ${ready ? 'is ready' : 'may still be starting'} at ${url}\n`)
-      openBrowser(url)
+  const url = baseUrl()
+  checkPort(config.host, config.port)
+    .then(async (inUse) => {
+      if (inUse) {
+        const health = await fetchHealth()
+        if (health.ok && health.body && health.body.service === 'nova') {
+          console.log(`\n  ▶ NOVA is already running at ${url}\n`)
+          openBrowser(url)
+          return
+        }
+        console.log(`\n[NOVA] Port ${config.port} is already in use by another application.\n`)
+        process.exit(1)
+      }
+      try {
+        startServer()
+        waitUntilUp().then((ready) => {
+          console.log(`\n  ▶ NOVA ${ready ? 'is ready' : 'may still be starting'} at ${url}\n`)
+          openBrowser(url)
+        })
+      } catch (err) {
+        console.error(`[NOVA] Failed to start: ${err && err.message ? err.message : String(err)}`)
+        process.exit(1)
+      }
     })
-  } catch (err) {
-    console.error(`[NOVA] Failed to start: ${err && err.message ? err.message : String(err)}`)
-    process.exit(1)
-  }
+    .catch(() => process.exit(1))
 }
 
 function main() {
@@ -145,7 +235,7 @@ function main() {
       cmdDoctor()
       break
     case 'stop':
-      console.log('NOVA stop: not yet implemented')
+      cmdStop()
       break
     case 'update':
       console.log('NOVA update: not yet implemented')

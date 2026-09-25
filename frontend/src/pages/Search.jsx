@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { searchBerita } from '../services/api'
+import { saveSearch, searchBerita } from '../services/api'
 import NewsCard from '../components/NewsCard'
+import { useI18n } from '../i18n'
 import { FeedSkeleton, default as Loading } from '../components/Loading'
 
 export default function Search() {
+  const { t } = useI18n()
   const [params, setParams] = useSearchParams()
   const q = params.get('q') || ''
   const [input, setInput] = useState(q)
@@ -12,12 +14,14 @@ export default function Search() {
   const [loading, setLoading] = useState(false)
   const [searched, setSearched] = useState(false)
   const [error, setError] = useState('')
+  const [saveMsg, setSaveMsg] = useState('')
 
   const submit = (e) => {
     e.preventDefault()
     const trimmed = input.trim()
     if (!trimmed) return
     setParams({ q: trimmed })
+    setSaveMsg('')
   }
 
   useEffect(() => {
@@ -28,6 +32,7 @@ export default function Search() {
     }
     setLoading(true)
     setError('')
+    setSaveMsg('')
     searchBerita(q, 60)
       .then((data) => {
         setResults(data)
@@ -36,6 +41,23 @@ export default function Search() {
       .catch((err) => setError(err.message || 'Search failed'))
       .finally(() => setLoading(false))
   }, [q])
+
+  const current = () => {
+    const s = input.trim()
+    return s ? s : q
+  }
+
+  const save = async () => {
+    const query = current()
+    if (!query) return
+    setSaveMsg('')
+    try {
+      await saveSearch(query, query)
+      setSaveMsg(t('searches.saved', { q: query }))
+    } catch (err) {
+      setSaveMsg(err.message)
+    }
+  }
 
   return (
     <div className="page">
@@ -64,6 +86,14 @@ export default function Search() {
           <div className="page-hint" style={{ margin: '12px 0' }}>
             {searched && `${results.length} result${results.length === 1 ? '' : 's'} for "${q}"`}
           </div>
+          {results.length > 0 && (
+            <div className="search-actions">
+              <button className="btn-primary" onClick={save}>
+                {t('searches.submit')}
+              </button>
+              {saveMsg && <span className="page-hint">{saveMsg}</span>}
+            </div>
+          )}
           {results.length === 0 ? (
             <div className="empty panel">No results for "{q}".</div>
           ) : (

@@ -60,6 +60,18 @@ function applySchema(db) {
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
 
+    CREATE TABLE IF NOT EXISTS event_articles (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        event_id INTEGER NOT NULL,
+        article_id INTEGER NOT NULL,
+        FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,
+        FOREIGN KEY (article_id) REFERENCES berita(id) ON DELETE CASCADE,
+        UNIQUE (event_id, article_id)
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_event_articles_event ON event_articles(event_id);
+    CREATE INDEX IF NOT EXISTS idx_event_articles_article ON event_articles(article_id);
+
     CREATE TABLE IF NOT EXISTS settings (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         key VARCHAR(100) UNIQUE NOT NULL,

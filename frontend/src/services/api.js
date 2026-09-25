@@ -76,6 +76,48 @@ export function removeBookmark(id) {
   return request(`/api/bookmarks/${id}`, { method: 'DELETE' })
 }
 
+export function getSavedSearches() {
+  return request('/api/saved-searches')
+}
+
+export function saveSearch(name, query) {
+  return request('/api/saved-searches', {
+    method: 'POST',
+    body: JSON.stringify({ name, query })
+  })
+}
+
+export function deleteSavedSearch(id) {
+  return request(`/api/saved-searches/${id}`, { method: 'DELETE' })
+}
+
+export function getWatchlist() {
+  return request('/api/watchlist')
+}
+
+export function addWatchlistItem(item) {
+  return request('/api/watchlist', {
+    method: 'POST',
+    body: JSON.stringify(item)
+  })
+}
+
+export function deleteWatchlistItem(id) {
+  return request(`/api/watchlist/${id}`, { method: 'DELETE' })
+}
+
+export function getEvents(params) {
+  return request(`/api/events${queryString(params)}`)
+}
+
+export function getEvent(id) {
+  return request(`/api/events/${id}`)
+}
+
+export function scanEvents() {
+  return request('/api/events/scan', { method: 'POST' })
+}
+
 export function getSources() {
   return request('/api/sources')
 }

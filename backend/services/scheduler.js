@@ -1,5 +1,6 @@
 const cron = require('node-cron')
 const { fetchAllSources } = require('./rssFetcher')
+const { detectEvents } = require('./eventEngine')
 
 let task = null
 
@@ -18,6 +19,8 @@ function startScheduler(db) {
       console.log(`[Scheduler] Fetching news at ${new Date().toISOString()}`)
       try {
         await fetchAllSources(db)
+        const result = detectEvents(db)
+        console.log(`[Scheduler] Events rebuilt: ${result.events} events from ${result.articles} recent articles`)
       } catch (err) {
         console.error(`[Scheduler] Fetch error: ${err.message}`)
       }

@@ -13,9 +13,13 @@ const beritaRoutes = require('./routes/berita')
 const sourcesRoutes = require('./routes/sources')
 const settingRoutes = require('./routes/setting')
 const bookmarksRoutes = require('./routes/bookmarks')
+const savedSearchesRoutes = require('./routes/savedSearches')
+const watchlistRoutes = require('./routes/watchlist')
+const eventsRoutes = require('./routes/events')
 const dataRoutes = require('./routes/data')
 const { requireAuth } = require('./middleware/auth')
 const { ensureDefaultSources, fetchAllSources } = require('./services/rssFetcher')
+const { detectEvents } = require('./services/eventEngine')
 const { startScheduler, stopScheduler } = require('./services/scheduler')
 
 function createServer() {
@@ -58,6 +62,9 @@ function createServer() {
   app.use('/api/sources', requireAuth, sourcesRoutes)
   app.use('/api/setting', requireAuth, settingRoutes)
   app.use('/api/bookmarks', requireAuth, bookmarksRoutes)
+  app.use('/api/saved-searches', requireAuth, savedSearchesRoutes)
+  app.use('/api/watchlist', requireAuth, watchlistRoutes)
+  app.use('/api/events', requireAuth, eventsRoutes)
   app.use('/api', requireAuth, dataRoutes)
 
   app.get('/api/status', requireAuth, (req, res) => {
@@ -82,6 +89,15 @@ function createServer() {
   })
 
   return app
+}
+
+function scanEvents(db) {
+  try {
+    return Promise.resolve(detectEvents(db))
+  } catch (err) {
+    console.error(`[NOVA] Event scan failed: ${err.message}`)
+    return Promise.resolve(null)
+  }
 }
 
 function startServer() {
@@ -115,6 +131,12 @@ function startServer() {
       app.locals.novaStatus.rssEngine = 'ONLINE'
       console.log('')
       console.log(`News engine ready: ${result.total} new articles from ${result.ok} sources (${result.failed} failed)`)
+      return scanEvents(db)
+    })
+    .then((ev) => {
+      if (ev) {
+        console.log(`Event engine ready: ${ev.events} events from ${ev.articles} recent articles`)
+      }
     })
     .catch((err) => {
       app.locals.novaStatus.rssEngine = 'ERROR'

@@ -9,6 +9,9 @@ import ArticleDetail from './pages/ArticleDetail'
 import Search from './pages/Search'
 import Sources from './pages/Sources'
 import Bookmarks from './pages/Bookmarks'
+import SavedSearches from './pages/SavedSearches'
+import Watchlist from './pages/Watchlist'
+import Events from './pages/Events'
 import Settings from './pages/Settings'
 import About from './pages/About'
 import Export from './pages/Export'
@@ -50,8 +53,9 @@ export default function App() {
               <Route path="/categories" element={<Placeholder />} />
               <Route path="/about" element={<About />} />
               <Route path="/tools/ai" element={<Placeholder />} />
-              <Route path="/tools/searches" element={<Placeholder />} />
-              <Route path="/tools/watchlist" element={<Placeholder />} />
+              <Route path="/tools/searches" element={<SavedSearches />} />
+              <Route path="/tools/watchlist" element={<Watchlist />} />
+              <Route path="/events" element={<Events />} />
               <Route path="/tools/export" element={<Export />} />
               <Route path="/tools/import" element={<Import />} />
               <Route path="*" element={<Navigate to="/" replace />} />
