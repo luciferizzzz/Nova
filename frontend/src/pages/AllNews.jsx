@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import NewsCard from '../components/NewsCard'
 import { FeedSkeleton, default as Loading } from '../components/Loading'
 import useFeed from '../hooks/useFeed'
@@ -11,20 +12,31 @@ const RANGES = [
   { id: '24h', label: 'Last 24 Hours', hours: 24 }
 ]
 
+const EMPTY_FILTERS = { q: '', sumber: '', kategori: '', negara: '', range: '', from: '', to: '' }
+
 export default function AllNews() {
+  const [searchParams] = useSearchParams()
   const [sources, setSources] = useState([])
-  const [local, setLocal] = useState({
-    q: '',
-    sumber: '',
-    kategori: '',
-    negara: '',
-    range: ''
-  })
+  const [local, setLocal] = useState(EMPTY_FILTERS)
   const [active, setActive] = useState(false)
 
   useEffect(() => {
     getSources().then(setSources).catch(() => {})
   }, [])
+
+  const deepLink = useMemo(() => {
+    const next = { ...EMPTY_FILTERS }
+    for (const key of ['q', 'sumber', 'kategori', 'negara', 'from', 'to']) {
+      next[key] = searchParams.get(key) || ''
+    }
+    return next
+  }, [searchParams])
+
+  useEffect(() => {
+    const hasFilter = ['q', 'sumber', 'kategori', 'negara', 'from', 'to'].some((k) => deepLink[k])
+    setLocal(deepLink)
+    setActive(hasFilter)
+  }, [deepLink])
 
   const params = active
     ? {
@@ -32,7 +44,8 @@ export default function AllNews() {
         sumber: local.sumber || undefined,
         kategori: local.kategori || undefined,
         negara: local.negara || undefined,
-        from: local.range ? lastHoursISO(local.range) : undefined
+        from: local.from || (local.range ? lastHoursISO(local.range) : undefined),
+        to: local.to || undefined
       }
     : {}
 
@@ -44,6 +57,8 @@ export default function AllNews() {
         <h2>ALL NEWS</h2>
         <span className="page-hint">
           {feed.items.length} shown{active ? ' · filters applied' : ''}
+          {local.from ? ` · from ${local.from.slice(0, 10)}` : ''}
+          {local.to ? ` to ${local.to.slice(0, 10)}` : ''}
         </span>
       </div>
 
@@ -89,7 +104,7 @@ export default function AllNews() {
         <button className="apply-btn" onClick={() => setActive(true)}>
           APPLY
         </button>
-        <button className="reset-btn" onClick={() => { setLocal({ q: '', sumber: '', kategori: '', negara: '', range: '' }); setActive(false) }}>
+        <button className="reset-btn" onClick={() => { setLocal(EMPTY_FILTERS); setActive(false) }}>
           RESET
         </button>
       </div>

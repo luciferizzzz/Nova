@@ -16,6 +16,7 @@ const bookmarksRoutes = require('./routes/bookmarks')
 const savedSearchesRoutes = require('./routes/savedSearches')
 const watchlistRoutes = require('./routes/watchlist')
 const eventsRoutes = require('./routes/events')
+const timelineRoutes = require('./routes/timeline')
 const dataRoutes = require('./routes/data')
 const { requireAuth } = require('./middleware/auth')
 const { ensureDefaultSources, fetchAllSources } = require('./services/rssFetcher')
@@ -65,6 +66,7 @@ function createServer() {
   app.use('/api/saved-searches', requireAuth, savedSearchesRoutes)
   app.use('/api/watchlist', requireAuth, watchlistRoutes)
   app.use('/api/events', requireAuth, eventsRoutes)
+  app.use('/api/timeline', requireAuth, timelineRoutes)
   app.use('/api', requireAuth, dataRoutes)
 
   app.get('/api/status', requireAuth, (req, res) => {
