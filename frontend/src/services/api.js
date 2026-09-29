@@ -118,6 +118,10 @@ export function scanEvents() {
   return request('/api/events/scan', { method: 'POST' })
 }
 
+export function getTimeline(params) {
+  return request(`/api/timeline${queryString(params)}`)
+}
+
 export function getSources() {
   return request('/api/sources')
 }

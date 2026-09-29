@@ -12,6 +12,7 @@ import Bookmarks from './pages/Bookmarks'
 import SavedSearches from './pages/SavedSearches'
 import Watchlist from './pages/Watchlist'
 import Events from './pages/Events'
+import Timeline from './pages/Timeline'
 import Settings from './pages/Settings'
 import About from './pages/About'
 import Export from './pages/Export'
@@ -48,7 +49,7 @@ export default function App() {
               <Route path="/bookmarks" element={<Bookmarks />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/map" element={<Placeholder />} />
-              <Route path="/timeline" element={<Placeholder />} />
+              <Route path="/timeline" element={<Timeline />} />
               <Route path="/analytics" element={<Placeholder />} />
               <Route path="/categories" element={<Placeholder />} />
               <Route path="/about" element={<About />} />
