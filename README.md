@@ -126,6 +126,7 @@ Semua endpoint di bawah `/api` memerlukan cookie sesi (login via `POST /api/auth
 | `GET` | `/api/events` | Daftar peristiwa + hitung per kategori; query `q`, `category`, `limit` (≤200), `offset` |
 | `GET` | `/api/events/:id` | Detail peristiwa + daftar artikel terkait (flag `bookmarked`) |
 | `POST` | `/api/events/scan` | Jalankan ulang deteksi peristiwa secara manual |
+| `GET` | `/api/timeline` | Agregasi berita per hari; query `days` (≤120), `from`, `to`, `kategori`, `negara`, `sumber` |
 | `GET` | `/api/export` | Ekspor seluruh data (JSON/CSV) |
 | `POST` | `/api/import` | Impor data |
 
@@ -146,7 +147,7 @@ Nova/
 │   └── src/
 │       ├── components/  # Sidebar, NewsCard, GlobePanel, StatCard, dll
 │       ├── i18n/        # Terjemahan id/en/ja/ko
-│       ├── pages/       # Dashboard, AllNews, ArticleDetail, Events, Search,
+│       ├── pages/       # Dashboard, AllNews, ArticleDetail, Events, Timeline, Search,
 │       │                #   Bookmarks, SavedSearches, Watchlist, Sources, Settings, …
 │       └── services/    # api.js (klien API)
 └── data/                # Database & cache lokal (diabaikan git)
@@ -158,7 +159,7 @@ Nova/
 - [x] **Fase 3** News Engine (RSS, scheduler, manajemen sumber)
 - [x] **Fase 4** Dashboard UI
 - [x] **Fase 5** Settings & Utilities (i18n, import/export, about, CLI)
-- [ ] **Fase 6** Intelligence (saved searches ✅, watchlist ✅, events ✅ — menunggu: AI summary, topik, peta interaktif, analitik, timeline)
+- [ ] **Fase 6** Intelligence (saved searches ✅, watchlist ✅, events ✅, timeline ✅ — menunggu: also-reported-by, trending velocity, live update, peta interaktif, analitik, categories)
 - [ ] **Fase 7** AI Layer (ringkasan berita, analisis tren)
 
 ## Lisensi
