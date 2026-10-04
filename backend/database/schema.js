@@ -56,6 +56,10 @@ function applySchema(db) {
         category VARCHAR(100),
         latitude REAL,
         longitude REAL,
+        summary TEXT,
+        summary_provider VARCHAR(50),
+        summary_model VARCHAR(100),
+        summary_generated_at DATETIME,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );

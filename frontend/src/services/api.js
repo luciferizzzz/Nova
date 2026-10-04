@@ -118,6 +118,14 @@ export function scanEvents() {
   return request('/api/events/scan', { method: 'POST' })
 }
 
+export function summarizeEvent(id) {
+  return request(`/api/events/${id}/summarize`, { method: 'POST' })
+}
+
+export function summarizeTimelineDay(date) {
+  return request('/api/ai/timeline/daily-summary', { method: 'POST', body: JSON.stringify({ date }) })
+}
+
 export function getTimeline(params) {
   return request(`/api/timeline${queryString(params)}`)
 }

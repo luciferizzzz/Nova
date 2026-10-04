@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { getEvents, getEvent, scanEvents } from '../services/api'
+import { getEvents, getEvent, scanEvents, summarizeEvent } from '../services/api'
 import { timeAgo, number, categoryClass, stripHtml } from '../utils/format'
 import { RefreshIcon } from '../components/icons'
 import { useI18n } from '../i18n'
@@ -17,6 +17,7 @@ export default function Events() {
   const [notice, setNotice] = useState('')
   const [expanded, setExpanded] = useState(null)
   const [detail, setDetail] = useState(null)
+  const [summarizing, setSummarizing] = useState({})
 
   function load() {
     setLoading(true)
@@ -56,6 +57,27 @@ export default function Events() {
       setExpanded(id)
     } catch {
       setNotice(t('events.loadError'))
+    }
+  }
+
+  async function handleSummarize(id) {
+    setSummarizing((s) => ({ ...s, [id]: true }))
+    try {
+      const r = await summarizeEvent(id)
+      if (r?.event) {
+        setDetail((d) => (d && d.id === id ? { ...d, ...r.event } : d))
+        setData((prev) => {
+          if (!prev?.events) return prev
+          return {
+            ...prev,
+            events: prev.events.map((e) => (e.id === id ? { ...e, ...r.event } : e))
+          }
+        })
+      }
+    } catch {
+      setNotice(t('events.loadError'))
+    } finally {
+      setSummarizing((s) => ({ ...s, [id]: false }))
     }
   }
 
@@ -125,6 +147,26 @@ export default function Events() {
               {expanded === ev.id && detail && detail.id === ev.id && (
                 <div className="event-card-body">
                   {detail.description && <p className="event-desc">{detail.description}</p>}
+                  {(detail.summary || ev.summary) && (
+                    <div className="event-summary panel">
+                      <div className="event-summary-title">{t('events.summary')}</div>
+                      <p className="event-summary-text">{detail.summary || ev.summary}</p>
+                      {detail.summary_generated_at && (
+                        <small className="event-summary-meta">
+                          {t('events.summaryGenerated')} {timeAgo(detail.summary_generated_at)} ({detail.summary_provider})
+                        </small>
+                      )}
+                    </div>
+                  )}
+                  <div className="event-actions">
+                    <button
+                      className="btn-link"
+                      onClick={() => handleSummarize(ev.id)}
+                      disabled={!!summarizing[ev.id]}
+                    >
+                      {summarizing[ev.id] ? t('events.summarizing') : t('events.generateSummary')}
+                    </button>
+                  </div>
                   <div className="event-members">
                     {detail.articles.map((a) => (
                       <div key={a.id} className="event-member">
@@ -133,7 +175,7 @@ export default function Events() {
                           {stripHtml(a.judul)}
                         </Link>
                         <span className="event-member-meta">
-                          {a.sumber} · {timeAgo(a.created_at)}
+                          {a.sumber} �� {timeAgo(a.created_at)}
                         </span>
                       </div>
                     ))}

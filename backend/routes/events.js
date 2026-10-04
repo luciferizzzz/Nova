@@ -35,6 +35,9 @@ router.get('/', (req, res) => {
   params.push(limit, offset)
 
   const events = req.db.prepare(sql).all(...params)
+  for (const e of events) {
+    if (e.summary) e.summary = e.summary
+  }
 
   let countSql = 'SELECT COUNT(*) AS count FROM events WHERE 1=1'
   let catSql = `

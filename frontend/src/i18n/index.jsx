@@ -167,7 +167,7 @@ const STRINGS = {
     'events.empty': 'No events detected yet. Fetch news and run re-scan to group related stories.',
     'events.loading': 'Loading events…',
     'events.loadError': 'Could not load events.',
-    'events.scanned': 'Events rebuilt: {n} events from {a} recent articles.',
+    'events.scanned': 'Events rebuilt: {n} events from {a} recent articles.','events.summary': 'EVENT SUMMARY','events.summaryGenerated': 'Generated','events.generateSummary': 'GENERATE SUMMARY','events.summarizing': 'Generating...','timeline.dailySummary': 'DAILY TL;DR','ai.title': 'AI SETTINGS','ai.enabled': 'AI Summarization','ai.provider': 'Provider','ai.endpoint': 'Ollama Endpoint','ai.model': 'Model','ai.maxTokens': 'Max Tokens','ai.temperature': 'Temperature','ai.help': 'Use Ollama for local LLM summaries, or extractive fallback if disabled.','ai.save': 'SAVE AI SETTINGS','ai.saved': 'AI settings saved.','events.summary': 'EVENT SUMMARY','events.summaryGenerated': 'Generated','events.generateSummary': 'GENERATE SUMMARY','events.summarizing': 'Generating...','timeline.dailySummary': 'DAILY TL;DR','ai.title': 'AI SETTINGS','ai.enabled': 'AI Summarization','ai.provider': 'Provider','ai.endpoint': 'Ollama Endpoint','ai.model': 'Model','ai.maxTokens': 'Max Tokens','ai.temperature': 'Temperature','ai.help': 'Use Ollama for local LLM summaries, or extractive fallback if disabled.','ai.save': 'SAVE AI SETTINGS','ai.saved': 'AI settings saved.',
     'timeline.title': 'TIMELINE',
     'timeline.articles': 'articles',
     'timeline.last7': 'Last 7 days',
@@ -759,3 +759,4 @@ export function I18nProvider({ children }) {
 export function useI18n() {
   return useContext(I18nContext)
 }
+

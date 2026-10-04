@@ -2,7 +2,18 @@ const express = require('express')
 
 const router = express.Router()
 
-const ALLOWED_KEYS = new Set(['rss_refresh_interval', 'language', 'country', 'theme'])
+const ALLOWED_KEYS = new Set([
+  'rss_refresh_interval',
+  'language',
+  'country',
+  'theme',
+  'ai_enabled',
+  'ai_provider',
+  'ai_endpoint',
+  'ai_model',
+  'ai_max_tokens',
+  'ai_temperature'
+])
 
 const VALIDATORS = {
   rss_refresh_interval: (value) => {
@@ -11,7 +22,19 @@ const VALIDATORS = {
   },
   language: (value) => (['id', 'en', 'ja', 'ko'].includes(value) ? value : null),
   country: (value) => (typeof value === 'string' && value.trim().length > 0 ? value.trim().slice(0, 100) : null),
-  theme: (value) => (['dark', 'light'].includes(value) ? value : null)
+  theme: (value) => (['dark', 'light'].includes(value) ? value : null),
+  ai_enabled: (value) => (['true', 'false', true, false].includes(value) ? (value === true || value === 'true' ? 'true' : 'false') : null),
+  ai_provider: (value) => (['ollama', 'extractive', 'disabled'].includes(value) ? value : null),
+  ai_endpoint: (value) => (typeof value === 'string' && value.trim().length > 0 ? value.trim().slice(0, 500) : null),
+  ai_model: (value) => (typeof value === 'string' && value.trim().length > 0 ? value.trim().slice(0, 200) : null),
+  ai_max_tokens: (value) => {
+    const n = parseInt(value, 10)
+    return Number.isInteger(n) && n >= 50 && n <= 2048 ? String(n) : null
+  },
+  ai_temperature: (value) => {
+    const n = parseFloat(value)
+    return !Number.isNaN(n) && n >= 0 && n <= 1 ? String(n) : null
+  }
 }
 
 function getAllSettings(db) {
