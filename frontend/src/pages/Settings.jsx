@@ -181,7 +181,7 @@ export default function Settings() {
             </label>
             {pwMsg.text && <div className={`form-msg ${pwMsg.type}`}>{pwMsg.text}</div>}
             <button type="submit" className="btn-primary" disabled={pwBusy}>
-              {pwBusy ? '�?�' : t('settings.updatePassword')}
+              {pwBusy ? '…' : t('settings.updatePassword')}
             </button>
           </form>
         </div>
@@ -223,7 +223,7 @@ export default function Settings() {
             <small className="help-text">{t('ai.help')}</small>
             {aiMsg.text && <div className={`form-msg ${aiMsg.type}`}>{aiMsg.text}</div>}
             <button type="submit" className="btn-primary" disabled={aiBusy}>
-              {aiBusy ? '�?�' : t('ai.save')}
+              {aiBusy ? '…' : t('ai.save')}
             </button>
           </form>
         </div>

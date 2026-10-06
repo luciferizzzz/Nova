@@ -32,12 +32,29 @@ async function summarizeWithOllama({ endpoint = 'http://localhost:11434', model 
       let data = '';
       res.on('data', chunk => { data += chunk; });
       res.on('end', () => {
+        let parsed;
         try {
-          const parsed = JSON.parse(data);
-          resolve(parsed.response || parsed.text || '');
+          parsed = JSON.parse(data);
         } catch (e) {
           reject(new Error('Invalid Ollama response: ' + data.slice(0, 200)));
+          return;
         }
+        // Ollama membalas HTTP 200 dengan body {"error": ...} untuk model yang
+        // tidak terpasang, jadi status code saja tidak cukup untuk tahu gagal.
+        if (res.statusCode !== 200) {
+          reject(new Error(`Ollama HTTP ${res.statusCode}: ${parsed.error || data.slice(0, 200)}`));
+          return;
+        }
+        if (parsed.error) {
+          reject(new Error(`Ollama error: ${parsed.error}`));
+          return;
+        }
+        const text = parsed.response || parsed.text || '';
+        if (!text.trim()) {
+          reject(new Error('Ollama returned an empty summary'));
+          return;
+        }
+        resolve(text);
       });
     });
 
@@ -90,8 +107,29 @@ async function summarizeEvent({ event, articles, settings }) {
     return { text: text.trim(), provider: 'extractive' };
   } catch (e) {
     const text = extractiveSummary(articles);
-    return { text: text.trim(), provider: 'extractive_fallback' };
+    return { text: text.trim(), provider: 'extractive_fallback', fallbackReason: e.message };
   }
+}
+
+function buildDayExtractive(date, events, headlines, maxEvents = 3, maxHeadlines = 2) {
+  const parts = [];
+  const eventTitles = events.slice(0, maxEvents).map((e) => String(e.title || '').replace(/\s+/g, ' ').trim()).filter(Boolean);
+  if (eventTitles.length > 0) parts.push(eventTitles.join('; '));
+
+  const headlineTitles = headlines
+    .slice(0, maxHeadlines)
+    .map((h) => String(h.judul || '').replace(/\s+/g, ' ').trim())
+    .filter(Boolean);
+  if (headlineTitles.length > 0) parts.push(`Other headlines: ${headlineTitles.join('; ')}`);
+
+  const counts = [];
+  if (events.length > 0) counts.push(`${events.length} tracked event${events.length > 1 ? 's' : ''}`);
+  if (headlines.length > 0) counts.push(`${headlines.length} headline${headlines.length > 1 ? 's' : ''}`);
+  if (counts.length > 0) parts.push(`(${counts.join(', ')})`);
+
+  if (parts.length === 0) return '';
+  const text = `${date}: ${parts.join('. ')}.`;
+  return text.length > 700 ? `${text.slice(0, 700).replace(/\s+\S*$/, '')}…` : text;
 }
 
 async function summarizeTimelineDay({ date, events = [], headlines = [], settings }) {
@@ -112,15 +150,9 @@ async function summarizeTimelineDay({ date, events = [], headlines = [], setting
       const text = await summarizeWithOllama({ endpoint, model, prompt });
       return { text: text.trim(), provider: 'ollama', model };
     }
-    const parts = [];
-    if (events.length > 0) parts.push(`${events.length} event(s)`);
-    if (headlines.length > 0) parts.push(`${headlines.length} headline(s)`);
-    return { text: parts.length > 0 ? `Summary for ${date}: ${parts.join(', ')}.` : '', provider: 'extractive' };
+    return { text: buildDayExtractive(date, events, headlines), provider: 'extractive' };
   } catch (e) {
-    const parts = [];
-    if (events.length > 0) parts.push(`${events.length} event(s)`);
-    if (headlines.length > 0) parts.push(`${headlines.length} headline(s)`);
-    return { text: parts.length > 0 ? `Summary for ${date}: ${parts.join(', ')}.` : '', provider: 'extractive_fallback' };
+    return { text: buildDayExtractive(date, events, headlines), provider: 'extractive_fallback', fallbackReason: e.message };
   }
 }
 

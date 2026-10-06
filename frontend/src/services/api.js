@@ -119,7 +119,7 @@ export function scanEvents() {
 }
 
 export function summarizeEvent(id) {
-  return request(`/api/events/${id}/summarize`, { method: 'POST' })
+  return request(`/api/ai/events/${id}/summarize`, { method: 'POST' })
 }
 
 export function summarizeTimelineDay(date) {

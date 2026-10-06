@@ -97,6 +97,32 @@ function applySchema(db) {
     CREATE INDEX IF NOT EXISTS idx_berita_slug ON berita(slug);
     CREATE UNIQUE INDEX IF NOT EXISTS idx_berita_link_asli ON berita(link_asli);
   `)
+
+  ensureColumns(db)
+}
+
+// CREATE TABLE IF NOT EXISTS tidak pernah mengubah tabel yang sudah ada, jadi
+// kolom baru hanya berlaku untuk database yang dibuat dari nol. Di sini setiap
+// kolom baru dideklarasikan sekali dan ditambahkan ke DB lama bila belum ada.
+const ADDED_COLUMNS = {
+  events: [
+    ['summary', 'TEXT'],
+    ['summary_provider', 'VARCHAR(50)'],
+    ['summary_model', 'VARCHAR(100)'],
+    ['summary_generated_at', 'DATETIME']
+  ]
+}
+
+function ensureColumns(db) {
+  for (const [table, columns] of Object.entries(ADDED_COLUMNS)) {
+    const existing = new Set(
+      db.prepare(`PRAGMA table_info(${table})`).all().map((c) => c.name)
+    )
+    for (const [name, type] of columns) {
+      if (existing.has(name)) continue
+      db.exec(`ALTER TABLE ${table} ADD COLUMN ${name} ${type}`)
+    }
+  }
 }
 
 module.exports = { applySchema }
