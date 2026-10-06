@@ -1880,6 +1880,72 @@ input[type='file']::file-selector-button:hover {
   color: var(--accent-bright);
 }
 
+/* AI SUMMARY (Phase 7) — shared by Events (/events) and Timeline (/timeline) */
+.ai-summary {
+  margin: 12px 0;
+  padding: 12px 14px;
+  border: 1px solid var(--border-soft);
+  border-left: 2px solid var(--accent);
+  border-radius: 6px;
+  background: var(--panel-2);
+}
+
+.ai-summary-title {
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--accent-bright);
+}
+
+.ai-summary-text {
+  margin: 8px 0 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+.ai-summary-meta {
+  display: block;
+  margin-top: 8px;
+  font-size: 10px;
+  letter-spacing: 0.6px;
+  color: var(--text-faint);
+}
+
+.ai-summary-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.btn-link {
+  padding: 0;
+  border: none;
+  background: none;
+  font-size: 10px;
+  letter-spacing: 1.8px;
+  color: var(--accent-bright);
+  cursor: pointer;
+}
+
+.btn-link:hover:not(:disabled) {
+  color: var(--text);
+  text-shadow: 0 0 12px var(--glow);
+}
+
+.btn-link:disabled {
+  color: var(--text-faint);
+  cursor: not-allowed;
+}
+
+.help-text {
+  display: block;
+  margin-top: 10px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--text-faint);
+}
+
 .tl-side {
   display: flex;
   flex-direction: column;

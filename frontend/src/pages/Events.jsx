@@ -73,9 +73,12 @@ export default function Events() {
             events: prev.events.map((e) => (e.id === id ? { ...e, ...r.event } : e))
           }
         })
+        setNotice(r.fallbackReason ? `${t('ai.fallbackNotice')} ${r.fallbackReason}` : '')
+      } else {
+        setNotice(t('ai.disabledNotice'))
       }
-    } catch {
-      setNotice(t('events.loadError'))
+    } catch (err) {
+      setNotice(err.message || t('events.loadError'))
     } finally {
       setSummarizing((s) => ({ ...s, [id]: false }))
     }
@@ -148,17 +151,17 @@ export default function Events() {
                 <div className="event-card-body">
                   {detail.description && <p className="event-desc">{detail.description}</p>}
                   {(detail.summary || ev.summary) && (
-                    <div className="event-summary panel">
-                      <div className="event-summary-title">{t('events.summary')}</div>
-                      <p className="event-summary-text">{detail.summary || ev.summary}</p>
+                    <div className="ai-summary">
+                      <div className="ai-summary-title">{t('events.summary')}</div>
+                      <p className="ai-summary-text">{detail.summary || ev.summary}</p>
                       {detail.summary_generated_at && (
-                        <small className="event-summary-meta">
+                        <small className="ai-summary-meta">
                           {t('events.summaryGenerated')} {timeAgo(detail.summary_generated_at)} ({detail.summary_provider})
                         </small>
                       )}
                     </div>
                   )}
-                  <div className="event-actions">
+                  <div className="ai-summary-actions">
                     <button
                       className="btn-link"
                       onClick={() => handleSummarize(ev.id)}
@@ -175,7 +178,7 @@ export default function Events() {
                           {stripHtml(a.judul)}
                         </Link>
                         <span className="event-member-meta">
-                          {a.sumber} �� {timeAgo(a.created_at)}
+                          {a.sumber} · {timeAgo(a.created_at)}
                         </span>
                       </div>
                     ))}

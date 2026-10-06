@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { getTimeline, getSources } from '../services/api'
+import { getTimeline, getSources, summarizeTimelineDay } from '../services/api'
 import { number, timeAgo, categoryClass, stripHtml, CATEGORIES, COUNTRIES } from '../utils/format'
 import { useI18n } from '../i18n'
 
@@ -33,6 +33,9 @@ export default function Timeline() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [open, setOpen] = useState(null)
+  const [tldr, setTldr] = useState({})
+  const [tldrBusy, setTldrBusy] = useState(null)
+  const [tldrError, setTldrError] = useState('')
 
   useEffect(() => {
     getSources().then(setSources).catch(() => {})
@@ -66,6 +69,24 @@ export default function Timeline() {
     setKategori('')
     setNegara('')
     setSumber('')
+  }
+
+  async function handleTldr(day) {
+    setTldrBusy(day)
+    setTldrError('')
+    try {
+      const r = await summarizeTimelineDay(day)
+      if (r?.summary) {
+        setTldr((prev) => ({ ...prev, [day]: { summary: r.summary, provider: r.provider, at: new Date().toISOString() } }))
+        setTldrError(r.fallbackReason ? `${t('ai.fallbackNotice')} ${r.fallbackReason}` : '')
+      } else {
+        setTldrError(t('ai.disabledNotice'))
+      }
+    } catch (err) {
+      setTldrError(err.message || t('timeline.loadError'))
+    } finally {
+      setTldrBusy(null)
+    }
   }
 
   return (
@@ -117,6 +138,7 @@ export default function Timeline() {
       </div>
 
       {error && <div className="error-banner">{error}</div>}
+      {tldrError && <div className="error-banner">{tldrError}</div>}
 
       {loading && !data ? (
         <div className="empty panel">{t('timeline.loading')}</div>
@@ -151,7 +173,13 @@ export default function Timeline() {
                 const hidden = d.count - d.articles.length
                 return (
                   <div key={d.day} className={`tl-day panel${isOpen ? ' open' : ''}`}>
-                    <button className="tl-day-head" onClick={() => setOpen(isOpen ? null : d.day)}>
+                    <button
+                      className="tl-day-head"
+                      onClick={() => {
+                        setOpen(isOpen ? null : d.day)
+                        setTldrError('')
+                      }}
+                    >
                       <span className="tl-rail">
                         <span className="tl-node" />
                       </span>
@@ -179,6 +207,24 @@ export default function Timeline() {
 
                     {isOpen && (
                       <div className="tl-day-body">
+                        <div className="ai-summary-actions">
+                          <button
+                            className="btn-link"
+                            onClick={() => handleTldr(d.day)}
+                            disabled={tldrBusy === d.day}
+                          >
+                            {tldrBusy === d.day ? t('events.summarizing') : t('timeline.generateDailySummary')}
+                          </button>
+                        </div>
+                        {tldr[d.day] && (
+                          <div className="ai-summary">
+                            <div className="ai-summary-title">{t('timeline.dailySummary')}</div>
+                            <p className="ai-summary-text">{tldr[d.day].summary}</p>
+                            <small className="ai-summary-meta">
+                              {t('events.summaryGenerated')} {timeAgo(tldr[d.day].at)} ({tldr[d.day].provider})
+                            </small>
+                          </div>
+                        )}
                         {d.sources.length > 0 && (
                           <div className="tl-day-sources">
                             {d.sources.map((s) => (
