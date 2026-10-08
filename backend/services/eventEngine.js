@@ -1,3 +1,5 @@
+const crypto = require('crypto')
+
 const STOPWORDS = new Set(
   `
   about above after again against all also am an and any are aren't as at be because been before being below
@@ -24,6 +26,14 @@ const MAX_EVENTS = 200
 const MAX_PAIR_CAP = 60
 const MAX_COMMON_FRACTION = 0.1
 const MAX_DESC_HEADLINES = 6
+const MIN_LINEAGE_OVERLAP = 0.5
+
+// Identitas event diturunkan dari keanggotaan cluster (bukan AUTOINCREMENT),
+// supaya ID tidak berubah tiap kali tabel di-scan ulang.
+function computeStableId(memberIds) {
+  const key = [...memberIds].sort((a, b) => a - b).join(',')
+  return crypto.createHash('sha256').update(key).digest('hex').slice(0, 16)
+}
 
 function tokenizeLatin(text, minLen = 4) {
   return String(text || '')
@@ -247,25 +257,154 @@ function truncate(text, max) {
   return `${s.slice(0, max).replace(/\s+\S*$/, '')}…`
 }
 
+function loadExistingEvents(db) {
+  const rows = db
+    .prepare(
+      `
+      SELECT e.id, e.stable_id, ea.article_id
+      FROM events e
+      LEFT JOIN event_articles ea ON ea.event_id = e.id
+      ORDER BY e.id
+    `
+    )
+    .all()
+
+  const byId = new Map()
+  for (const r of rows) {
+    let ev = byId.get(r.id)
+    if (!ev) {
+      ev = { id: r.id, stableId: r.stable_id || null, members: [] }
+      byId.set(r.id, ev)
+    }
+    if (r.article_id !== null && r.article_id !== undefined) ev.members.push(r.article_id)
+  }
+
+  return [...byId.values()].map((ev) => ({ ...ev, memberHash: computeStableId(ev.members) }))
+}
+
+// Pasangkan record hasil scan terbaru ke baris events yang sudah ada, supaya
+// ID (dan cache summary/koordinat) bertahan lintas scan:
+//   1. cocok persis — stable_id sama, atau baris lama belum punya stable_id
+//   2. garis keturunan — anggota cluster tumpang tindih >= 50% (keanggotaan
+//      memang berubah saat cerita berkembang; identitasnya tetap)
+//   3. selain itu dianggap event baru
+function matchRecords(existing, records) {
+  const ordered = records
+    .map((record, index) => ({ record, index, ids: record.members.map((m) => m.id) }))
+    .sort(
+      (a, b) =>
+        b.ids.length - a.ids.length ||
+        (a.record.createdAt < b.record.createdAt ? -1 : a.record.createdAt > b.record.createdAt ? 1 : 0) ||
+        a.index - b.index
+    )
+
+  const taken = new Set()
+  const plan = new Map()
+
+  for (const item of ordered) {
+    const candidate = computeStableId(item.ids)
+    const memberSet = new Set(item.ids)
+
+    let hit = null
+    for (const ev of existing) {
+      if (taken.has(ev.id)) continue
+      if (ev.stableId === candidate || (ev.stableId === null && ev.memberHash === candidate)) {
+        hit = ev
+        break
+      }
+    }
+
+    if (!hit) {
+      let bestScore = 0
+      for (const ev of existing) {
+        if (taken.has(ev.id) || ev.members.length === 0) continue
+        let shared = 0
+        for (const id of ev.members) if (memberSet.has(id)) shared++
+        if (shared === 0) continue
+        const score = shared / Math.min(ev.members.length, item.ids.length)
+        if (score > bestScore) {
+          bestScore = score
+          hit = ev
+        }
+      }
+      if (hit && bestScore < MIN_LINEAGE_OVERLAP) hit = null
+    }
+
+    if (hit) {
+      taken.add(hit.id)
+      plan.set(item.index, { eventId: hit.id, stableId: hit.stableId || candidate })
+    } else {
+      plan.set(item.index, { eventId: null, stableId: candidate })
+    }
+  }
+
+  const deleteIds = existing.filter((ev) => !taken.has(ev.id)).map((ev) => ev.id)
+
+  // Guard UNIQUE(stable_id): kandidat dari cluster baru bisa kebetulan sama
+  // dengan stable_id baris lama yang dipertahankan lewat garis keturunan.
+  // Scan berikutnya tetap kembali ke baris yang sama lewat fallback overlap.
+  const used = new Set(plan.values().filter((p) => p.eventId !== null).map((p) => p.stableId))
+  for (const [index, entry] of plan) {
+    if (entry.eventId !== null) continue
+    let candidate = entry.stableId
+    let n = 1
+    while (used.has(candidate)) {
+      n += 1
+      candidate = `${entry.stableId.slice(0, 29)}-${n}`
+    }
+    used.add(candidate)
+    plan.set(index, { eventId: null, stableId: candidate })
+  }
+
+  return { plan, deleteIds }
+}
+
 function persistEvents(db, records) {
+  const existing = loadExistingEvents(db)
+  const { plan, deleteIds } = matchRecords(existing, records)
+
   db.exec('BEGIN')
   try {
     db.exec('DELETE FROM event_articles')
-    db.exec('DELETE FROM events')
+
+    if (deleteIds.length) {
+      const deleteEvent = db.prepare('DELETE FROM events WHERE id = ?')
+      for (const id of deleteIds) deleteEvent.run(id)
+    }
 
     const insertEvent = db.prepare(
       `
-      INSERT INTO events (title, description, category, latitude, longitude, created_at, updated_at)
-      VALUES (?, ?, ?, NULL, NULL, ?, ?)
+      INSERT INTO events (stable_id, title, description, category, latitude, longitude, created_at, updated_at)
+      VALUES (?, ?, ?, ?, NULL, NULL, ?, ?)
+    `
+    )
+    const updateEvent = db.prepare(
+      `
+      UPDATE events
+      SET stable_id = ?, title = ?, description = ?, category = ?, updated_at = ?
+      WHERE id = ?
     `
     )
     const insertRel = db.prepare('INSERT INTO event_articles (event_id, article_id) VALUES (?, ?)')
 
-    for (const r of records) {
-      const res = insertEvent.run(r.title, r.description, r.category, r.createdAt, r.updatedAt)
-      const eventId = Number(res.lastInsertRowid)
-      for (const m of r.members) insertRel.run(eventId, m.id)
-    }
+    records.forEach((record, index) => {
+      const { eventId, stableId } = plan.get(index)
+      let id = eventId
+      if (id === null) {
+        const res = insertEvent.run(
+          stableId,
+          record.title,
+          record.description,
+          record.category,
+          record.createdAt,
+          record.updatedAt
+        )
+        id = Number(res.lastInsertRowid)
+      } else {
+        updateEvent.run(stableId, record.title, record.description, record.category, record.updatedAt, id)
+      }
+      for (const m of record.members) insertRel.run(id, m.id)
+    })
 
     db.exec('COMMIT')
   } catch (err) {
@@ -274,4 +413,4 @@ function persistEvents(db, records) {
   }
 }
 
-module.exports = { detectEvents, previewClusters }
+module.exports = { detectEvents, previewClusters, computeStableId }

@@ -45,16 +45,16 @@ export default function Events() {
     }
   }
 
-  async function toggleDetail(id) {
-    if (expanded === id) {
+  async function toggleDetail(ev) {
+    if (expanded === ev.stable_id) {
       setExpanded(null)
       setDetail(null)
       return
     }
     try {
-      const d = await getEvent(id)
+      const d = await getEvent(ev.id)
       setDetail(d)
-      setExpanded(id)
+      setExpanded(ev.stable_id)
     } catch {
       setNotice(t('events.loadError'))
     }
@@ -140,14 +140,14 @@ export default function Events() {
       ) : (
         <div className="events-list">
           {events.map((ev) => (
-            <div key={ev.id} className={`panel event-card${expanded === ev.id ? ' open' : ''}`}>
-              <button className="event-card-head" onClick={() => toggleDetail(ev.id)}>
+            <div key={ev.stable_id} className={`panel event-card${expanded === ev.stable_id ? ' open' : ''}`}>
+              <button className="event-card-head" onClick={() => toggleDetail(ev)}>
                 <span className={`badge cat ${categoryClass(ev.category)}`}>{ev.category || 'Other'}</span>
                 <span className="event-card-title">{ev.title}</span>
                 <span className="event-card-count">{number(ev.article_count)} {t('events.articles')}</span>
                 <span className="event-card-time">{timeAgo(ev.updated_at)}</span>
               </button>
-              {expanded === ev.id && detail && detail.id === ev.id && (
+              {expanded === ev.stable_id && detail && detail.stable_id === ev.stable_id && (
                 <div className="event-card-body">
                   {detail.description && <p className="event-desc">{detail.description}</p>}
                   {(detail.summary || ev.summary) && (

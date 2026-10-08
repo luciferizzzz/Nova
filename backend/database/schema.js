@@ -51,6 +51,7 @@ function applySchema(db) {
 
     CREATE TABLE IF NOT EXISTS events (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        stable_id VARCHAR(32),
         title VARCHAR(255) NOT NULL,
         description TEXT,
         category VARCHAR(100),
@@ -99,6 +100,10 @@ function applySchema(db) {
   `)
 
   ensureColumns(db)
+
+  // Index dibuat setelah ensureColumns: pada DB lama kolom stable_id baru
+  // ditambahkan lewat ALTER TABLE, jadi CREATE INDEX sebelumnya akan gagal.
+  db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_events_stable_id ON events(stable_id)')
 }
 
 // CREATE TABLE IF NOT EXISTS tidak pernah mengubah tabel yang sudah ada, jadi
@@ -106,6 +111,7 @@ function applySchema(db) {
 // kolom baru dideklarasikan sekali dan ditambahkan ke DB lama bila belum ada.
 const ADDED_COLUMNS = {
   events: [
+    ['stable_id', 'VARCHAR(32)'],
     ['summary', 'TEXT'],
     ['summary_provider', 'VARCHAR(50)'],
     ['summary_model', 'VARCHAR(100)'],
