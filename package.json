@@ -11,7 +11,8 @@
         "nova": "node cli/nova.js",
         "dev": "node cli/nova.js",
         "backend": "node backend/server.js",
-        "frontend": "npm --prefix frontend run dev"
+        "frontend": "npm --prefix frontend run dev",
+        "test:ai": "node tests/ai-api.test.js"
     },
     "keywords": [
         "news",
