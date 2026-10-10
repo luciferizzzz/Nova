@@ -42,9 +42,18 @@ export default function Dashboard() {
   const feed = useFeed(params)
 
   useEffect(() => {
-    getStats().then(setStats).catch(() => {})
-    getSources().then(setSources).catch(() => {})
-    getBerita({ limit: 4 }).then(setStories).catch(() => {})
+    let active = true
+    const load = () => {
+      getStats().then((s) => { if (active) setStats(s) }).catch(() => {})
+      getSources().then((s) => { if (active) setSources(s) }).catch(() => {})
+      getBerita({ limit: 4 }).then((s) => { if (active) setStories(s) }).catch(() => {})
+    }
+    load()
+    const id = setInterval(load, 60000)
+    return () => {
+      active = false
+      clearInterval(id)
+    }
   }, [])
 
   const statCards = stats

@@ -34,7 +34,7 @@ function cookieOptions() {
     httpOnly: true,
     sameSite: 'strict',
     path: '/',
-    maxAge: SESSION_TTL_MS / 1000
+    maxAge: SESSION_TTL_MS
   }
 }
 
