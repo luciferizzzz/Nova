@@ -39,12 +39,21 @@ export default function Dashboard() {
   const [filters, setFilters] = useState({ range: null, sumber: '', kategori: '', negara: '' })
 
   const params = buildParams(tab, filters)
-  const feed = useFeed(params)
+  const feed = useFeed(params, { poll: true })
 
   useEffect(() => {
-    getStats().then(setStats).catch(() => {})
-    getSources().then(setSources).catch(() => {})
-    getBerita({ limit: 4 }).then(setStories).catch(() => {})
+    let active = true
+    const load = () => {
+      getStats().then((s) => { if (active) setStats(s) }).catch(() => {})
+      getSources().then((s) => { if (active) setSources(s) }).catch(() => {})
+      getBerita({ limit: 4 }).then((s) => { if (active) setStories(s) }).catch(() => {})
+    }
+    load()
+    const id = setInterval(load, 60000)
+    return () => {
+      active = false
+      clearInterval(id)
+    }
   }, [])
 
   const statCards = stats
@@ -70,6 +79,13 @@ export default function Dashboard() {
           <GlobePanel />
           <NewsTabs active={tab} onChange={setTab} />
           <QuickFilters filters={filters} onChange={setFilters} sources={sources} />
+          {feed.newCount > 0 && (
+            <button className="new-articles-bar" onClick={feed.refresh}>
+              <span className="new-articles-dot" />
+              {t('feed.newArticles', { n: feed.newCount })}
+              <span className="new-articles-cta">{t('feed.loadNew')}</span>
+            </button>
+          )}
           {feed.error && <div className="error-banner">{feed.error}</div>}
           {feed.loading && feed.items.length === 0 ? (
             <FeedSkeleton count={4} />

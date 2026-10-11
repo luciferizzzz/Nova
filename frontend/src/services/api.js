@@ -106,6 +106,22 @@ export function deleteWatchlistItem(id) {
   return request(`/api/watchlist/${id}`, { method: 'DELETE' })
 }
 
+export function getWatchlistInsights(id, days = 7) {
+  return request(`/api/watchlist/${id}/insights${queryString({ days })}`)
+}
+
+export function summarizeWatchlistItem(id) {
+  return request(`/api/ai/watchlist/${id}/summarize`, { method: 'POST' })
+}
+
+export function getTopics(params) {
+  return request(`/api/ai/topics${queryString(params)}`)
+}
+
+export function summarizeTopic(term) {
+  return request('/api/ai/topics/summarize', { method: 'POST', body: JSON.stringify({ term }) })
+}
+
 export function getEvents(params) {
   return request(`/api/events${queryString(params)}`)
 }
@@ -116,6 +132,14 @@ export function getEvent(id) {
 
 export function scanEvents() {
   return request('/api/events/scan', { method: 'POST' })
+}
+
+export function summarizeEvent(id) {
+  return request(`/api/ai/events/${id}/summarize`, { method: 'POST' })
+}
+
+export function summarizeTimelineDay(date) {
+  return request('/api/ai/timeline/daily-summary', { method: 'POST', body: JSON.stringify({ date }) })
 }
 
 export function getTimeline(params) {

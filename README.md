@@ -33,6 +33,7 @@ Sistem agregasi berita **local-first** yang berjalan di laptop/PC Anda. NOVA men
 - **Saved Searches (Pencarian Tersimpan)**: simpan query pencarian berita yang dipakai berulang
 - **Watchlist (Pantauan)**: pantau topik/quotes tertentu untuk diberi sorotan di dashboard
 - **Events (Peristiwa)**: deteksi dan pengelompokan otomatis artikel terkait menjadi peristiwa, dengan halaman filter + penelusuran terkait (engine clustering berbasis token & Jaccard similarity, window 14 hari)
+- **Timeline (Linimasa)**: alur peristiwa per hari, komposisi kategori, top sumber, headline, histogram 24 jam
 
 ## Persyaratan
 
@@ -159,8 +160,10 @@ Nova/
 - [x] **Fase 3** News Engine (RSS, scheduler, manajemen sumber)
 - [x] **Fase 4** Dashboard UI
 - [x] **Fase 5** Settings & Utilities (i18n, import/export, about, CLI)
-- [ ] **Fase 6** Intelligence (saved searches ✅, watchlist ✅, events ✅, timeline ✅ — menunggu: also-reported-by, trending velocity, live update, peta interaktif, analitik, categories)
-- [ ] **Fase 7** AI Layer (ringkasan berita, analisis tren)
+- [x] **Fase 6** Intelligence core (saved searches, watchlist, events, timeline) — rilis v1.2.0
+- [ ] **Fase 7** AI Layer (ringkasan berita, analisis tren) — in progress
+- [ ] **Fase 8** Analytics & Insights (dashboard, categories, also-reported-by, trending velocity)
+- [ ] **Fase 9** Geo Mapping (3D globe, event markers, full map) — ⛔ blocked: butuh sumber koordinat
 
 ## Lisensi
 

@@ -46,16 +46,25 @@ function applySchema(db) {
         name VARCHAR(255) NOT NULL,
         type VARCHAR(50),
         value TEXT NOT NULL,
+        insight_summary TEXT,
+        insight_provider VARCHAR(50),
+        insight_model VARCHAR(100),
+        insight_generated_at DATETIME,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
 
     CREATE TABLE IF NOT EXISTS events (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        stable_id VARCHAR(32),
         title VARCHAR(255) NOT NULL,
         description TEXT,
         category VARCHAR(100),
         latitude REAL,
         longitude REAL,
+        summary TEXT,
+        summary_provider VARCHAR(50),
+        summary_model VARCHAR(100),
+        summary_generated_at DATETIME,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
@@ -93,6 +102,43 @@ function applySchema(db) {
     CREATE INDEX IF NOT EXISTS idx_berita_slug ON berita(slug);
     CREATE UNIQUE INDEX IF NOT EXISTS idx_berita_link_asli ON berita(link_asli);
   `)
+
+  ensureColumns(db)
+
+  // Index dibuat setelah ensureColumns: pada DB lama kolom stable_id baru
+  // ditambahkan lewat ALTER TABLE, jadi CREATE INDEX sebelumnya akan gagal.
+  db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_events_stable_id ON events(stable_id)')
+}
+
+// CREATE TABLE IF NOT EXISTS tidak pernah mengubah tabel yang sudah ada, jadi
+// kolom baru hanya berlaku untuk database yang dibuat dari nol. Di sini setiap
+// kolom baru dideklarasikan sekali dan ditambahkan ke DB lama bila belum ada.
+const ADDED_COLUMNS = {
+  events: [
+    ['stable_id', 'VARCHAR(32)'],
+    ['summary', 'TEXT'],
+    ['summary_provider', 'VARCHAR(50)'],
+    ['summary_model', 'VARCHAR(100)'],
+    ['summary_generated_at', 'DATETIME']
+  ],
+  watchlist: [
+    ['insight_summary', 'TEXT'],
+    ['insight_provider', 'VARCHAR(50)'],
+    ['insight_model', 'VARCHAR(100)'],
+    ['insight_generated_at', 'DATETIME']
+  ]
+}
+
+function ensureColumns(db) {
+  for (const [table, columns] of Object.entries(ADDED_COLUMNS)) {
+    const existing = new Set(
+      db.prepare(`PRAGMA table_info(${table})`).all().map((c) => c.name)
+    )
+    for (const [name, type] of columns) {
+      if (existing.has(name)) continue
+      db.exec(`ALTER TABLE ${table} ADD COLUMN ${name} ${type}`)
+    }
+  }
 }
 
 module.exports = { applySchema }

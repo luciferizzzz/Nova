@@ -12,6 +12,7 @@ import Bookmarks from './pages/Bookmarks'
 import SavedSearches from './pages/SavedSearches'
 import Watchlist from './pages/Watchlist'
 import Events from './pages/Events'
+import Topics from './pages/Topics'
 import Timeline from './pages/Timeline'
 import Settings from './pages/Settings'
 import About from './pages/About'
@@ -57,6 +58,7 @@ export default function App() {
               <Route path="/tools/searches" element={<SavedSearches />} />
               <Route path="/tools/watchlist" element={<Watchlist />} />
               <Route path="/events" element={<Events />} />
+              <Route path="/topics" element={<Topics />} />
               <Route path="/tools/export" element={<Export />} />
               <Route path="/tools/import" element={<Import />} />
               <Route path="*" element={<Navigate to="/" replace />} />
