@@ -132,8 +132,27 @@ function exit(code) {
   r = await call('DELETE', `/api/watchlist/${wlId}`);
   check('cleanup watchlist item', r.status === 200);
 
+  console.log('\n=== TOPIC ANALYSIS (Fitur B) ===');
+  r = await call('GET', '/api/ai/topics?days=30&limit=5');
+  const tp = r.json?.topics?.[0];
+  check('GET topics', r.status === 200 && Array.isArray(r.json?.topics) && r.json.topics.length > 0, `n=${r.json?.topics?.length}`);
+  check('topik punya metrik', !!tp && typeof tp.count === 'number' && typeof tp.sources === 'number' && Array.isArray(tp.daily) && Array.isArray(tp.headlines), tp?.term);
+  check('daily buckets = 30', tp?.daily?.length === 30, `n=${tp?.daily?.length}`);
+  check('topik terurut turun', (r.json?.topics || []).every((x, i, arr) => i === 0 || arr[i - 1].count >= x.count));
+  r = await call('GET', '/api/ai/topics?days=9999&limit=9999');
+  check('clamp days 1-90', r.status === 200 && r.json?.days === 90, `days=${r.json?.days}`);
+
+  await call('PUT', '/api/setting', { ai_enabled: 'true', ai_provider: 'extractive' });
+  r = await call('POST', '/api/ai/topics/summarize', { term: tp?.term || 'news' });
+  check('topic digest generate', r.status === 200 && r.json?.ok === true, `provider=${r.json?.provider}`);
+  r = await call('POST', '/api/ai/topics/summarize', {});
+  check('topic tanpa term -> 400', r.status === 400);
+  await call('PUT', '/api/setting', { ai_enabled: 'false', ai_provider: 'extractive' });
+  r = await call('POST', '/api/ai/topics/summarize', { term: tp?.term || 'news' });
+  check('topic digest ok:false saat AI off', r.status === 200 && r.json?.ok === false);
+
   console.log('\n=== REGRESI ===');
-  for (const p of ['/api/events?limit=3', '/api/timeline?days=7', '/api/berita?limit=3', '/api/sources', '/api/setting', '/api/bookmarks', '/api/watchlist']) {
+  for (const p of ['/api/events?limit=3', '/api/timeline?days=7', '/api/berita?limit=3', '/api/sources', '/api/setting', '/api/bookmarks', '/api/watchlist', '/api/ai/topics']) {
     const x = await call('GET', p);
     check(`GET ${p}`, x.status === 200, `HTTP ${x.status}`);
   }

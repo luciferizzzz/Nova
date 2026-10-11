@@ -190,8 +190,13 @@ async function summarizeWatchlist({ item, articles = [], settings }) {
   }
 }
 
+async function summarizeTopic({ term, articles = [], settings }) {
+  return summarizeWatchlist({ item: { name: term, type: 'topic', value: term }, articles, settings })
+}
+
 module.exports = {
   summarizeEvent,
   summarizeTimelineDay,
-  summarizeWatchlist
+  summarizeWatchlist,
+  summarizeTopic
 };

@@ -1779,6 +1779,14 @@ input[type='file']::file-selector-button:hover {
   white-space: nowrap;
 }
 
+.topic-term {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  text-transform: capitalize;
+}
+
 .event-card-body {
   padding: 0 16px 16px;
   border-top: 1px solid var(--border-soft);

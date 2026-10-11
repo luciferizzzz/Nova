@@ -413,4 +413,4 @@ function persistEvents(db, records) {
   }
 }
 
-module.exports = { detectEvents, previewClusters, computeStableId }
+module.exports = { detectEvents, previewClusters, computeStableId, tokenizeLatin, tokenizeCJK, getTokens }

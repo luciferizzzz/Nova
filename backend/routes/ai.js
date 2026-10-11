@@ -1,6 +1,7 @@
 const express = require('express');
-const { summarizeEvent, summarizeTimelineDay, summarizeWatchlist } = require('../services/aiSummarizer');
+const { summarizeEvent, summarizeTimelineDay, summarizeWatchlist, summarizeTopic } = require('../services/aiSummarizer');
 const { matchClause } = require('../services/watchlistInsights');
+const { extractTopics } = require('../services/topicEngine');
 
 const router = express.Router();
 
@@ -10,6 +11,64 @@ function readSettings(db) {
   for (const r of rows) settings[r.key] = r.value;
   return settings;
 }
+
+function clampInt(raw, min, max, fallback) {
+  const n = parseInt(raw, 10);
+  return Number.isInteger(n) ? Math.min(Math.max(n, min), max) : fallback;
+}
+
+// Topic analysis: topik teratas yang diekstrak dari judul artikel dalam jendela
+// waktu (deterministik, tanpa model). Mendukung analisis tren & keragaman sumber.
+router.get('/topics', (req, res) => {
+  try {
+    const days = clampInt(req.query.days, 1, 90, 30);
+    const limit = clampInt(req.query.limit, 1, 50, 12);
+    res.json(extractTopics(req.db, { days, limit }));
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+router.post('/topics/summarize', async (req, res) => {
+  try {
+    const db = req.db;
+    const term = String((req.body && req.body.term) || '').trim();
+    if (!term) return res.status(400).json({ error: 'term required' });
+    if (term.length > 100) return res.status(400).json({ error: 'term must be <= 100 chars' });
+
+    const { clause, params } = matchClause(term);
+    const articles = db.prepare(`
+      SELECT id, judul, konten, sumber, kategori, negara, created_at
+      FROM berita
+      WHERE ${clause}
+      ORDER BY created_at DESC
+      LIMIT 8
+    `).all(...params);
+
+    const settings = readSettings(db);
+    const result = await summarizeTopic({ term, articles, settings });
+
+    if (!result.text) {
+      return res.json({
+        ok: false,
+        term,
+        message: 'No summary generated',
+        provider: result.provider,
+        articles: articles.length
+      });
+    }
+    res.json({
+      ok: true,
+      term,
+      summary: result.text,
+      provider: result.provider,
+      articles: articles.length,
+      ...(result.fallbackReason ? { fallbackReason: result.fallbackReason } : {})
+    });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
 
 router.post('/events/:id/summarize', async (req, res) => {
   try {

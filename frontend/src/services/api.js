@@ -114,6 +114,14 @@ export function summarizeWatchlistItem(id) {
   return request(`/api/ai/watchlist/${id}/summarize`, { method: 'POST' })
 }
 
+export function getTopics(params) {
+  return request(`/api/ai/topics${queryString(params)}`)
+}
+
+export function summarizeTopic(term) {
+  return request('/api/ai/topics/summarize', { method: 'POST', body: JSON.stringify({ term }) })
+}
+
 export function getEvents(params) {
   return request(`/api/events${queryString(params)}`)
 }
