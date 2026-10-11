@@ -35,6 +35,11 @@ Sistem agregasi berita **local-first** yang berjalan di laptop/PC Anda. NOVA men
 - **Events (Peristiwa)**: deteksi dan pengelompokan otomatis artikel terkait menjadi peristiwa, dengan halaman filter + penelusuran terkait (engine clustering berbasis token & Jaccard similarity, window 14 hari)
 - **Timeline (Linimasa)**: alur peristiwa per hari, komposisi kategori, top sumber, headline, histogram 24 jam
 
+### AI Layer (Fase 7)
+- **AI Summarization**: ringkasan per peristiwa & digest harian (Daily TL;DR) — default **ekstraktif lokal** (tanpa dependensi), provider Ollama opsional via Settings
+- **Watchlist Intelligence**: panel intelijen per pantauan — tren 24 jam, sparkline 7 hari, sumber utama, headline terbaru, dan digest AI
+- **Topic Analysis**: ekstraksi topik dari judul artikel (frekuensi × keragaman sumber × tren) di halaman `/topics` dengan sparkline, top sources, dan digest AI
+
 ## Persyaratan
 
 - **Node.js** ≥ 22.5 (menggunakan modul eksperimental `node:sqlite`)
@@ -122,12 +127,18 @@ Semua endpoint di bawah `/api` memerlukan cookie sesi (login via `POST /api/auth
 | `POST` | `/api/saved-searches` | Simpan pencarian (`{ q, label? }`) |
 | `DELETE` | `/api/saved-searches/:id` | Hapus pencarian tersimpan |
 | `GET` | `/api/watchlist` | Daftar watchlist |
-| `POST` | `/api/watchlist` | Tambah watchlist (`{ keyword }`) |
+| `POST` | `/api/watchlist` | Tambah watchlist (`{ name, type, value }`) |
 | `DELETE` | `/api/watchlist/:id` | Hapus watchlist |
+| `GET` | `/api/watchlist/:id/insights` | Intelijen pantauan: tren 24 jam, sparkline, sumber, headline; query `days` |
 | `GET` | `/api/events` | Daftar peristiwa + hitung per kategori; query `q`, `category`, `limit` (≤200), `offset` |
 | `GET` | `/api/events/:id` | Detail peristiwa + daftar artikel terkait (flag `bookmarked`) |
 | `POST` | `/api/events/scan` | Jalankan ulang deteksi peristiwa secara manual |
 | `GET` | `/api/timeline` | Agregasi berita per hari; query `days` (≤120), `from`, `to`, `kategori`, `negara`, `sumber` |
+| `POST` | `/api/ai/events/:id/summarize` | Ringkasan AI per peristiwa (di-cache di DB) |
+| `POST` | `/api/ai/timeline/daily-summary` | Digest harian berita (Daily TL;DR) |
+| `GET` | `/api/ai/topics` | Daftar topik hasil ekstraksi; query `days`, `limit` |
+| `POST` | `/api/ai/topics/summarize` | Digest AI untuk satu topik (`{ term }`) |
+| `POST` | `/api/ai/watchlist/:id/summarize` | Digest AI pantauan (di-cache di DB) |
 | `GET` | `/api/export` | Ekspor seluruh data (JSON/CSV) |
 | `POST` | `/api/import` | Impor data |
 
@@ -140,7 +151,7 @@ Nova/
 │   ├── database/        # Koneksi SQLite + schema (db.js, schema.js)
 │   ├── middleware/      # requireAuth, dll
 │   ├── routes/          # Express routers (auth, berita, sources, events, …)
-│   ├── services/        # rssFetcher, rssSources, scheduler, eventEngine, session
+│   ├── services/        # rssFetcher, rssSources, scheduler, eventEngine, aiSummarizer, watchlistInsights, topicEngine, session
 │   ├── utils/           # password (Argon2id)
 │   └── server.js        # Entry point API
 ├── cli/                 # CLI `nova` (start/status/doctor)
@@ -148,7 +159,7 @@ Nova/
 │   └── src/
 │       ├── components/  # Sidebar, NewsCard, GlobePanel, StatCard, dll
 │       ├── i18n/        # Terjemahan id/en/ja/ko
-│       ├── pages/       # Dashboard, AllNews, ArticleDetail, Events, Timeline, Search,
+│       ├── pages/       # Dashboard, AllNews, ArticleDetail, Events, Timeline, Topics, Search,
 │       │                #   Bookmarks, SavedSearches, Watchlist, Sources, Settings, …
 │       └── services/    # api.js (klien API)
 └── data/                # Database & cache lokal (diabaikan git)
@@ -161,7 +172,7 @@ Nova/
 - [x] **Fase 4** Dashboard UI
 - [x] **Fase 5** Settings & Utilities (i18n, import/export, about, CLI)
 - [x] **Fase 6** Intelligence core (saved searches, watchlist, events, timeline) — rilis v1.2.0
-- [ ] **Fase 7** AI Layer (ringkasan berita, analisis tren) — in progress
+- [x] **Fase 7** AI Layer (AI summarization, watchlist intelligence, topic analysis) — rilis v1.3.0
 - [ ] **Fase 8** Analytics & Insights (dashboard, categories, also-reported-by, trending velocity)
 - [ ] **Fase 9** Geo Mapping (3D globe, event markers, full map) — ⛔ blocked: butuh sumber koordinat
 
