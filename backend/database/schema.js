@@ -46,6 +46,10 @@ function applySchema(db) {
         name VARCHAR(255) NOT NULL,
         type VARCHAR(50),
         value TEXT NOT NULL,
+        insight_summary TEXT,
+        insight_provider VARCHAR(50),
+        insight_model VARCHAR(100),
+        insight_generated_at DATETIME,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
 
@@ -116,6 +120,12 @@ const ADDED_COLUMNS = {
     ['summary_provider', 'VARCHAR(50)'],
     ['summary_model', 'VARCHAR(100)'],
     ['summary_generated_at', 'DATETIME']
+  ],
+  watchlist: [
+    ['insight_summary', 'TEXT'],
+    ['insight_provider', 'VARCHAR(50)'],
+    ['insight_model', 'VARCHAR(100)'],
+    ['insight_generated_at', 'DATETIME']
   ]
 }
 

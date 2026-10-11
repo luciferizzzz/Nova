@@ -1,5 +1,6 @@
 const express = require('express');
-const { summarizeEvent, summarizeTimelineDay } = require('../services/aiSummarizer');
+const { summarizeEvent, summarizeTimelineDay, summarizeWatchlist } = require('../services/aiSummarizer');
+const { matchClause } = require('../services/watchlistInsights');
 
 const router = express.Router();
 
@@ -86,6 +87,47 @@ router.post('/timeline/daily-summary', async (req, res) => {
       provider: result.provider,
       ...(result.fallbackReason ? { fallbackReason: result.fallbackReason } : {})
     });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+router.post('/watchlist/:id/summarize', async (req, res) => {
+  try {
+    const db = req.db;
+    const id = Number(req.params.id);
+    const item = db.prepare('SELECT * FROM watchlist WHERE id = ?').get(id);
+    if (!item) return res.status(404).json({ error: 'Watchlist item not found' });
+
+    const { clause, params } = matchClause(item.value);
+    const articles = db.prepare(`
+      SELECT id, judul, konten, sumber, kategori, negara, created_at
+      FROM berita
+      WHERE ${clause}
+      ORDER BY created_at DESC
+      LIMIT 8
+    `).all(...params);
+
+    const settings = readSettings(db);
+    const result = await summarizeWatchlist({ item, articles, settings });
+
+    if (result.text) {
+      db.prepare(`
+        UPDATE watchlist
+        SET insight_summary = ?, insight_provider = ?, insight_model = ?,
+            insight_generated_at = datetime('now')
+        WHERE id = ?
+      `).run(result.text, result.provider || null, result.model || null, id);
+      const updated = db.prepare('SELECT * FROM watchlist WHERE id = ?').get(id);
+      return res.json({
+        ok: true,
+        summary: result.text,
+        item: updated,
+        ...(result.fallbackReason ? { fallbackReason: result.fallbackReason } : {})
+      });
+    }
+
+    return res.json({ ok: false, message: 'No summary generated' });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }

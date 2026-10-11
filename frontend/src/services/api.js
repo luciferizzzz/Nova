@@ -106,6 +106,14 @@ export function deleteWatchlistItem(id) {
   return request(`/api/watchlist/${id}`, { method: 'DELETE' })
 }
 
+export function getWatchlistInsights(id, days = 7) {
+  return request(`/api/watchlist/${id}/insights${queryString({ days })}`)
+}
+
+export function summarizeWatchlistItem(id) {
+  return request(`/api/ai/watchlist/${id}/summarize`, { method: 'POST' })
+}
+
 export function getEvents(params) {
   return request(`/api/events${queryString(params)}`)
 }

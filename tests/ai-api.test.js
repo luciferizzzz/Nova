@@ -105,8 +105,35 @@ function exit(code) {
   const withSum = r.json.events.filter((e) => e.summary).length;
   check('GET /api/events menyertakan summary', withSum > 0, `${withSum}/10 event punya summary`);
 
+  console.log('\n=== WATCHLIST INTELLIGENCE (Fitur C) ===');
+  r = await call('POST', '/api/watchlist', { name: 'Test topic', type: 'keyword', value: 'a' });
+  const wlId = r.json?.id;
+  check('create watchlist item', r.status === 200 && !!wlId);
+  r = await call('GET', `/api/watchlist/${wlId}/insights`);
+  check('GET insights', r.status === 200 && !!r.json?.insights, `total=${r.json?.insights?.total}`);
+  check('insights daily = 7 buckets', Array.isArray(r.json?.insights?.daily) && r.json.insights.daily.length === 7, `n=${r.json?.insights?.daily?.length}`);
+  check('insights trend number', typeof r.json?.insights?.trend === 'number');
+  check('insights punya latest', Array.isArray(r.json?.insights?.latest));
+  r = await call('GET', '/api/watchlist/99999999/insights');
+  check('insights item tidak ada -> 404', r.status === 404);
+
+  await call('PUT', '/api/setting', { ai_enabled: 'true', ai_provider: 'extractive' });
+  r = await call('POST', `/api/ai/watchlist/${wlId}/summarize`);
+  check('digest generate', r.status === 200 && r.json?.ok === true, `provider=${r.json?.item?.insight_provider}`);
+  check('digest tidak kosong', (r.json?.summary || '').length > 5, `${(r.json?.summary || '').length} char`);
+  check('digest tersimpan di item', !!r.json?.item?.insight_summary);
+  r = await call('POST', '/api/ai/watchlist/99999999/summarize');
+  check('summarize item tidak ada -> 404', r.status === 404);
+
+  await call('PUT', '/api/setting', { ai_enabled: 'false', ai_provider: 'extractive' });
+  r = await call('POST', `/api/ai/watchlist/${wlId}/summarize`);
+  check('digest ok:false saat AI off', r.status === 200 && r.json?.ok === false);
+
+  r = await call('DELETE', `/api/watchlist/${wlId}`);
+  check('cleanup watchlist item', r.status === 200);
+
   console.log('\n=== REGRESI ===');
-  for (const p of ['/api/events?limit=3', '/api/timeline?days=7', '/api/berita?limit=3', '/api/sources', '/api/setting', '/api/bookmarks']) {
+  for (const p of ['/api/events?limit=3', '/api/timeline?days=7', '/api/berita?limit=3', '/api/sources', '/api/setting', '/api/bookmarks', '/api/watchlist']) {
     const x = await call('GET', p);
     check(`GET ${p}`, x.status === 200, `HTTP ${x.status}`);
   }

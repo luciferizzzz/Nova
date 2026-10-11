@@ -1,4 +1,5 @@
 const express = require('express')
+const { getWatchlistInsights } = require('../services/watchlistInsights')
 
 const router = express.Router()
 
@@ -21,6 +22,16 @@ router.get('/', (req, res) => {
   })
 
   res.json(items)
+})
+
+router.get('/:id/insights', (req, res) => {
+  const item = req.db.prepare('SELECT * FROM watchlist WHERE id = ?').get(req.params.id)
+  if (!item) return res.status(404).json({ error: 'Watchlist item not found' })
+
+  const parsed = parseInt(req.query.days, 10)
+  const days = Number.isInteger(parsed) ? Math.min(Math.max(parsed, 1), 90) : 7
+  const insights = getWatchlistInsights(req.db, item, { days })
+  res.json({ item, insights })
 })
 
 router.post('/', (req, res) => {

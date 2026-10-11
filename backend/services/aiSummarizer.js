@@ -156,7 +156,42 @@ async function summarizeTimelineDay({ date, events = [], headlines = [], setting
   }
 }
 
+function buildWatchlistExtractive(item, articles, maxHeadlines = 3) {
+  const headlines = (articles || [])
+    .map((a) => String(a.judul || a.title || '').replace(/\s+/g, ' ').trim())
+    .filter(Boolean)
+    .slice(0, maxHeadlines);
+  if (headlines.length === 0) return '';
+  return `${item.name}: ${headlines.join('; ')}.`;
+}
+
+async function summarizeWatchlist({ item, articles = [], settings }) {
+  const provider = (settings.ai_provider || 'extractive').toLowerCase();
+  const endpoint = settings.ai_endpoint || 'http://localhost:11434';
+  const model = settings.ai_model || 'llama3.2:3b';
+  const enabled = settings.ai_enabled === 'true' || settings.ai_enabled === true;
+
+  if (!enabled || provider === 'disabled') return { text: '', provider: 'disabled' };
+
+  const articleList = (articles || [])
+    .map((a, i) => `${i + 1}. ${a.judul || a.title}: ${truncate(a.konten || a.content || '', 800)}`)
+    .join('\n');
+
+  const prompt = `You are monitoring the topic "${item.name}" (${item.type}: ${item.value}). Based on the latest articles below, write a 2-3 sentence intelligence digest of what is happening. Use the same language as the articles. Focus on developments, actors, and changes.\n\nArticles:\n${articleList}\n\nDigest:`;
+
+  try {
+    if (provider === 'ollama') {
+      const text = await summarizeWithOllama({ endpoint, model, prompt });
+      return { text: text.trim(), provider: 'ollama', model };
+    }
+    return { text: buildWatchlistExtractive(item, articles), provider: 'extractive' };
+  } catch (e) {
+    return { text: buildWatchlistExtractive(item, articles), provider: 'extractive_fallback', fallbackReason: e.message };
+  }
+}
+
 module.exports = {
   summarizeEvent,
-  summarizeTimelineDay
+  summarizeTimelineDay,
+  summarizeWatchlist
 };

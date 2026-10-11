@@ -39,7 +39,7 @@ export default function Dashboard() {
   const [filters, setFilters] = useState({ range: null, sumber: '', kategori: '', negara: '' })
 
   const params = buildParams(tab, filters)
-  const feed = useFeed(params)
+  const feed = useFeed(params, { poll: true })
 
   useEffect(() => {
     let active = true
@@ -79,6 +79,13 @@ export default function Dashboard() {
           <GlobePanel />
           <NewsTabs active={tab} onChange={setTab} />
           <QuickFilters filters={filters} onChange={setFilters} sources={sources} />
+          {feed.newCount > 0 && (
+            <button className="new-articles-bar" onClick={feed.refresh}>
+              <span className="new-articles-dot" />
+              {t('feed.newArticles', { n: feed.newCount })}
+              <span className="new-articles-cta">{t('feed.loadNew')}</span>
+            </button>
+          )}
           {feed.error && <div className="error-banner">{feed.error}</div>}
           {feed.loading && feed.items.length === 0 ? (
             <FeedSkeleton count={4} />
