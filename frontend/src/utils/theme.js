@@ -6,7 +6,13 @@ export const ACCENTS = [
   { value: 'blue', labelKey: 'settings.accentBlue' },
   { value: 'pink', labelKey: 'settings.accentPink' },
   { value: 'red', labelKey: 'settings.accentRed' },
-  { value: 'purple', labelKey: 'settings.accentPurple' }
+  { value: 'purple', labelKey: 'settings.accentPurple' },
+  { value: 'sage', labelKey: 'settings.accentSage' },
+  { value: 'amber', labelKey: 'settings.accentAmber' },
+  { value: 'teal', labelKey: 'settings.accentTeal' },
+  { value: 'slate', labelKey: 'settings.accentSlate' },
+  { value: 'terracotta', labelKey: 'settings.accentTerracotta' },
+  { value: 'midnight', labelKey: 'settings.accentMidnight' }
 ]
 
 export function applyTheme(theme = 'dark', accent = 'nova') {
