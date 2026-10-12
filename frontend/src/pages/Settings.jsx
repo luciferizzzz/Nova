@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { changePassword, getSettings, updateSettings } from '../services/api'
 import { useI18n } from '../i18n'
 import { COUNTRIES } from '../utils/format'
+import { ACCENTS, applyTheme, loadTheme } from '../utils/theme'
 
 export default function Settings() {
   const { t, langs, setLanguage } = useI18n()
@@ -9,6 +10,7 @@ export default function Settings() {
   const [pwMsg, setPwMsg] = useState({ type: '', text: '' })
   const [pwBusy, setPwBusy] = useState(false)
   const [gen, setGen] = useState({ language: 'en', country: 'Indonesia', theme: 'dark', interval: '30' })
+  const [accent, setAccent] = useState(() => loadTheme().accent)
   const [ai, setAi] = useState({
     ai_enabled: 'false',
     ai_provider: 'extractive',
@@ -93,11 +95,8 @@ export default function Settings() {
   }
 
   useEffect(() => {
-    if (gen.theme) {
-      document.documentElement.setAttribute('data-theme', gen.theme)
-      localStorage.setItem('nova-theme', gen.theme)
-    }
-  }, [gen.theme])
+    if (gen.theme) applyTheme(gen.theme, accent)
+  }, [gen.theme, accent])
 
   const submitPw = async (e) => {
     e.preventDefault()
@@ -151,6 +150,16 @@ export default function Settings() {
               <select value={gen.theme} onChange={set('theme')}>
                 <option value="dark">{t('settings.themeDark')}</option>
                 <option value="light">{t('settings.themeLight')}</option>
+              </select>
+            </label>
+            <label>
+              {t('settings.accent')}
+              <select value={accent} onChange={(e) => setAccent(e.target.value)}>
+                {ACCENTS.map((a) => (
+                  <option key={a.value} value={a.value}>
+                    {t(a.labelKey)}
+                  </option>
+                ))}
               </select>
             </label>
             <label>

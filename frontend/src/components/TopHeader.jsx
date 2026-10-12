@@ -2,13 +2,14 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { SearchIcon, GearIcon, MoonIcon, SunIcon } from './icons'
 import { useI18n } from '../i18n'
+import { applyTheme, loadTheme } from '../utils/theme'
 
 function useTheme() {
-  const [theme, setTheme] = useState(() => localStorage.getItem('nova-theme') || 'dark')
+  const [theme, setTheme] = useState(() => loadTheme().theme)
+  const [accent] = useState(() => loadTheme().accent)
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme)
-    localStorage.setItem('nova-theme', theme)
-  }, [theme])
+    applyTheme(theme, accent)
+  }, [theme, accent])
   return [theme, setTheme]
 }
 
