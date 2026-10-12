@@ -40,6 +40,11 @@ Sistem agregasi berita **local-first** yang berjalan di laptop/PC Anda. NOVA men
 - **Watchlist Intelligence**: panel intelijen per pantauan — tren 24 jam, sparkline 7 hari, sumber utama, headline terbaru, dan digest AI
 - **Topic Analysis**: ekstraksi topik dari judul artikel (frekuensi × keragaman sumber × tren) di halaman `/topics` dengan sparkline, top sources, dan digest AI
 
+### Appearance — Color Themes (v1.4.0)
+- **10 tema accent** (Blue, Pink, Red, Purple, Sage, Amber, Teal, Slate, Terracotta, Midnight) × mode terang/gelap = **20 skin**, semua lolos kontras WCAG AA
+- Dipasang sebagai **lapisan opsional** (`data-accent`) di atas mode terang/gelap yang sudah ada — tanpa memilih accent, tampilan default tetap identitas NOVA (near-black + crimson)
+- Pemilih **Accent** di Settings + warna kategori/status yang konsisten lintas tema
+
 ## Persyaratan
 
 - **Node.js** ≥ 22.5 (menggunakan modul eksperimental `node:sqlite`)
@@ -173,6 +178,7 @@ Nova/
 - [x] **Fase 5** Settings & Utilities (i18n, import/export, about, CLI)
 - [x] **Fase 6** Intelligence core (saved searches, watchlist, events, timeline) — rilis v1.2.0
 - [x] **Fase 7** AI Layer (AI summarization, watchlist intelligence, topic analysis) — rilis v1.3.0
+- [x] **Appearance** Color Themes (10 accent × light/dark) — rilis v1.4.0
 - [ ] **Fase 8** Analytics & Insights (dashboard, categories, also-reported-by, trending velocity)
 - [ ] **Fase 9** Geo Mapping (3D globe, event markers, full map) — ⛔ blocked: butuh sumber koordinat
 
