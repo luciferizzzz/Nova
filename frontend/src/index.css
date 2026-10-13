@@ -1389,6 +1389,93 @@ button {
   box-shadow: var(--glow);
 }
 
+/* ================= CORROBORATION (Phase 8) ================= */
+
+.corroboration {
+  margin-top: 16px;
+  padding: 18px 22px;
+}
+
+.corroboration-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.corroboration-title {
+  font-size: 11px;
+  letter-spacing: 2.5px;
+  color: var(--text-dim);
+}
+
+.corroboration-count {
+  font-size: 11px;
+  color: var(--text-faint);
+}
+
+.corroboration-sources {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.corroboration-source {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  color: var(--accent-bright);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px 10px;
+}
+
+.corroboration-source-count {
+  color: var(--text-faint);
+  font-size: 10px;
+}
+
+.corroboration-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.corroboration-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.corroboration-item:last-child {
+  border-bottom: none;
+}
+
+.corroboration-link {
+  flex: 1;
+  font-size: 13px;
+  color: var(--text);
+  text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.corroboration-link:hover {
+  color: var(--accent-bright);
+}
+
+.corroboration-meta {
+  font-size: 11px;
+  color: var(--text-faint);
+  white-space: nowrap;
+}
+
 /* ================= TABLE ================= */
 
 .table-wrap {

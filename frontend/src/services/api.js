@@ -61,6 +61,10 @@ export function getArticle(slug) {
   return request(`/api/berita/${encodeURIComponent(slug)}`)
 }
 
+export function getCorroboration(slug) {
+  return request(`/api/berita/${encodeURIComponent(slug)}/corroboration`)
+}
+
 export function toggleBookmark(articleId) {
   return request('/api/bookmarks', {
     method: 'POST',

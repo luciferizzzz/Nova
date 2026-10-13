@@ -111,6 +111,61 @@ router.get('/search', (req, res) => {
   res.json(berita)
 })
 
+// "Also reported by" — corroboration antar sumber untuk satu artikel.
+// Memakai event yang sudah diklaster (event_articles): artikel lain di event
+// yang sama, dari sumber berbeda, adalah bukti liputan lintas sumber.
+router.get('/:slug/corroboration', (req, res) => {
+  const artikel = req.db
+    .prepare('SELECT id, sumber FROM berita WHERE slug = ?')
+    .get(req.params.slug)
+
+  if (!artikel) return res.status(404).json({ error: 'Article not found' })
+
+  const event = req.db
+    .prepare(
+      `
+      SELECT e.id, e.stable_id, e.title, e.category
+      FROM events e
+      JOIN event_articles ea ON ea.event_id = e.id
+      WHERE ea.article_id = ?
+      LIMIT 1
+    `
+    )
+    .get(artikel.id)
+
+  if (!event) return res.json({ event: null, sourceCount: 0, sources: [], articles: [] })
+
+  const total = req.db
+    .prepare('SELECT COUNT(*) AS count FROM event_articles WHERE event_id = ?')
+    .get(event.id).count
+
+  const articles = req.db
+    .prepare(
+      `
+      SELECT b.id, b.slug, b.judul, b.sumber, b.negara, b.created_at
+      FROM event_articles ea
+      JOIN berita b ON b.id = ea.article_id
+      WHERE ea.event_id = ? AND b.id != ?
+        AND b.sumber IS NOT NULL AND b.sumber != ?
+      ORDER BY b.created_at DESC
+    `
+    )
+    .all(event.id, artikel.id, artikel.sumber || '')
+
+  const counts = new Map()
+  for (const a of articles) counts.set(a.sumber, (counts.get(a.sumber) || 0) + 1)
+  const sources = [...counts.entries()]
+    .map(([sumber, count]) => ({ sumber, count }))
+    .sort((a, b) => b.count - a.count || a.sumber.localeCompare(b.sumber))
+
+  res.json({
+    event: { ...event, article_count: total },
+    sourceCount: sources.length,
+    sources,
+    articles
+  })
+})
+
 router.get('/:slug', (req, res) => {
   const artikel = req.db
     .prepare(

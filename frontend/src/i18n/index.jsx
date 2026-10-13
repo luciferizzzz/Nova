@@ -248,7 +248,9 @@ const STRINGS = {
     'timeline.more': '+{n} more in All News →',
     'timeline.empty': 'No articles in this range. Fetch news or widen the range.',
     'timeline.loading': 'Building timeline…',
-    'timeline.loadError': 'Could not load the timeline.'
+    'timeline.loadError': 'Could not load the timeline.',
+    'article.alsoReportedBy': 'ALSO REPORTED BY',
+    'article.alsoReportedSources': '{n} other sources'
   },
   id: {
     'nav.dashboard': 'Dasbor',
@@ -480,7 +482,9 @@ const STRINGS = {
     'timeline.more': '+{n} lainnya di Semua Berita →',
     'timeline.empty': 'Tidak ada artikel dalam rentang ini. Muat berita atau perlebar rentang.',
     'timeline.loading': 'Menyusun garis waktu…',
-    'timeline.loadError': 'Gagal memuat garis waktu.'
+    'timeline.loadError': 'Gagal memuat garis waktu.',
+    'article.alsoReportedBy': 'JUGA DILAPORKAN OLEH',
+    'article.alsoReportedSources': '{n} sumber lain'
   },
   ja: {
     'nav.dashboard': 'ダッシュボード',
@@ -712,7 +716,9 @@ const STRINGS = {
     'timeline.more': '他 {n} 件をすべてのニュースで見る →',
     'timeline.empty': 'この期間の記事はありません。ニュースを取得するか、期間を広げてください。',
     'timeline.loading': 'タイムラインを構築中…',
-    'timeline.loadError': 'タイムラインを読み込めませんでした。'
+    'timeline.loadError': 'タイムラインを読み込めませんでした。',
+    'article.alsoReportedBy': '他社も報道',
+    'article.alsoReportedSources': '他 {n} 社'
   },
   ko: {
     'nav.dashboard': '대시보드',
@@ -944,7 +950,9 @@ const STRINGS = {
     'timeline.more': '모든 뉴스에서 {n}건 더 보기 →',
     'timeline.empty': '이 기간에 기사가 없습니다. 뉴스를 가져오거나 기간을 넓히세요.',
     'timeline.loading': '타임라인 만드는 중…',
-    'timeline.loadError': '타임라인을 불러올 수 없습니다.'
+    'timeline.loadError': '타임라인을 불러올 수 없습니다.',
+    'article.alsoReportedBy': '다른 매체 보도',
+    'article.alsoReportedSources': '다른 매체 {n}곳'
   }
 }
 

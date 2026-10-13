@@ -45,6 +45,9 @@ Sistem agregasi berita **local-first** yang berjalan di laptop/PC Anda. NOVA men
 - Dipasang sebagai **lapisan opsional** (`data-accent`) di atas mode terang/gelap yang sudah ada — tanpa memilih accent, tampilan default tetap identitas NOVA (near-black + crimson)
 - Pemilih **Accent** di Settings + warna kategori/status yang konsisten lintas tema
 
+### Analytics & Insights (Fase 8) — berjalan
+- **"Also reported by"**: di halaman detail artikel, tampilkan sumber lain yang melaporkan peristiwa yang sama (corroboration lintas sumber), memakai klaster event yang sudah ada
+
 ## Persyaratan
 
 - **Node.js** ≥ 22.5 (menggunakan modul eksperimental `node:sqlite`)
@@ -118,6 +121,7 @@ Semua endpoint di bawah `/api` memerlukan cookie sesi (login via `POST /api/auth
 | `GET` | `/api/berita` | Daftar berita + bookmark; query `negara`, `kategori`, `bahasa`, `sumber`, `q`, `from`, `to`, `limit`, `offset` |
 | `GET` | `/api/berita/search` | TLDR search; query `q`, `limit` |
 | `GET` | `/api/berita/:slug` | Detail artikel |
+| `GET` | `/api/berita/:slug/corroboration` | "Also reported by" — sumber lain yang melaporkan peristiwa sama (corroboration) |
 | `GET` | `/api/sources` | Daftar sumber |
 | `POST` | `/api/sources` | Tambah sumber |
 | `POST` | `/api/sources/refresh` | Force refresh seluruh sumber |
@@ -179,7 +183,7 @@ Nova/
 - [x] **Fase 6** Intelligence core (saved searches, watchlist, events, timeline) — rilis v1.2.0
 - [x] **Fase 7** AI Layer (AI summarization, watchlist intelligence, topic analysis) — rilis v1.3.0
 - [x] **Appearance** Color Themes (10 accent × light/dark) — rilis v1.4.0
-- [ ] **Fase 8** Analytics & Insights (dashboard, categories, also-reported-by, trending velocity)
+- [ ] **Fase 8** Analytics & Insights (dashboard, categories, also-reported-by, trending velocity) — 🚧 berjalan di branch `feature/analytics-insights`; **"Also reported by" ✅**
 - [ ] **Fase 9** Geo Mapping (3D globe, event markers, full map) — ⛔ blocked: butuh sumber koordinat
 
 ## Lisensi
