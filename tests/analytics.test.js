@@ -99,6 +99,51 @@ function exit(code) {
     check('ada minimal 1 artikel untuk sampel', false, 'DB kosong');
   }
 
+  console.log('\n=== TRENDING VELOCITY (Fitur B) ===');
+  {
+    const savedT = cookie;
+    cookie = '';
+    const unauthT = await call('GET', '/api/trending');
+    cookie = savedT;
+    check('trending tanpa login ditolak', unauthT.status === 401, `HTTP ${unauthT.status}`);
+
+    const tr = await call('GET', '/api/trending?hours=24&limit=5');
+    check('GET /api/trending', tr.status === 200, `HTTP ${tr.status}`);
+    check('bentuk respons (hours/since/count/events)',
+      tr.json && typeof tr.json.hours === 'number' && typeof tr.json.since === 'string' &&
+      typeof tr.json.count === 'number' && Array.isArray(tr.json.events));
+
+    const tev = tr.json?.events || [];
+    if (tev.length > 0) {
+      check('semua event recent_count >= 1', tev.every((e) => e.recent_count >= 1));
+      check('semua event velocity > 0', tev.every((e) => e.velocity > 0));
+      check('velocity = recent_count / hours',
+        tev.every((e) => Math.abs(e.velocity - e.recent_count / tr.json.hours) < 0.01),
+        `contoh ${tev[0].velocity} vs ${(tev[0].recent_count / tr.json.hours).toFixed(2)}`);
+      check('total_count >= recent_count', tev.every((e) => e.total_count >= e.recent_count));
+      check('source_count >= 1', tev.every((e) => e.source_count >= 1));
+      check('last_at terisi', tev.every((e) => !!e.last_at));
+      check('events terurut recent_count DESC',
+        tev.every((e, i) => i === 0 || tev[i - 1].recent_count >= e.recent_count));
+      check('articles per event <= 3 & array',
+        tev.every((e) => Array.isArray(e.articles) && e.articles.length <= 3));
+      check('articles konsisten (<= recent_count)',
+        tev.every((e) => e.articles.length <= e.recent_count));
+
+      // Filter kategori (setingkat artikel) menyempitkan velocity & artikel tampilan.
+      const kategori = tev[0].articles[0]?.kategori;
+      if (kategori) {
+        const trf = await call('GET', `/api/trending?hours=24&kategori=${encodeURIComponent(kategori)}`);
+        check('filter kategori -> 200', trf.status === 200, `HTTP ${trf.status}`);
+        check('filter kategori: artikel tampilan semua match',
+          (trf.json?.events || []).every((e) => (e.articles || []).every((a) => a.kategori === kategori)),
+          kategori);
+      }
+    } else {
+      check('ada minimal 1 event trending (24h)', false, 'tidak ada event dengan artikel dalam 24h');
+    }
+  }
+
   console.log('\n=== REGRESI ===');
   for (const p of ['/api/berita?limit=3', '/api/berita/stats', '/api/events?limit=3', '/api/timeline?days=7']) {
     const x = await call('GET', p);

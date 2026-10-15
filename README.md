@@ -47,6 +47,7 @@ Sistem agregasi berita **local-first** yang berjalan di laptop/PC Anda. NOVA men
 
 ### Analytics & Insights (Fase 8) — berjalan
 - **"Also reported by"**: di halaman detail artikel, tampilkan sumber lain yang melaporkan peristiwa yang sama (corroboration lintas sumber), memakai klaster event yang sudah ada
+- **Trending velocity**: tab Trending kini diurutkan menurut laju artikel per jam per event (velocity) — menggantikan feed 24 jam biasa; panel menampilkan peringkat event + kecepatan liputan + headline terbaru
 
 ## Persyaratan
 
@@ -143,6 +144,7 @@ Semua endpoint di bawah `/api` memerlukan cookie sesi (login via `POST /api/auth
 | `GET` | `/api/events/:id` | Detail peristiwa + daftar artikel terkait (flag `bookmarked`) |
 | `POST` | `/api/events/scan` | Jalankan ulang deteksi peristiwa secara manual |
 | `GET` | `/api/timeline` | Agregasi berita per hari; query `days` (≤120), `from`, `to`, `kategori`, `negara`, `sumber` |
+| `GET` | `/api/trending` | Peringkat event menurut velocity (artikel/jam); query `hours` (≤720), `limit` (≤50), `negara`, `kategori`, `sumber`, `bahasa` |
 | `POST` | `/api/ai/events/:id/summarize` | Ringkasan AI per peristiwa (di-cache di DB) |
 | `POST` | `/api/ai/timeline/daily-summary` | Digest harian berita (Daily TL;DR) |
 | `GET` | `/api/ai/topics` | Daftar topik hasil ekstraksi; query `days`, `limit` |
@@ -183,7 +185,7 @@ Nova/
 - [x] **Fase 6** Intelligence core (saved searches, watchlist, events, timeline) — rilis v1.2.0
 - [x] **Fase 7** AI Layer (AI summarization, watchlist intelligence, topic analysis) — rilis v1.3.0
 - [x] **Appearance** Color Themes (10 accent × light/dark) — rilis v1.4.0
-- [ ] **Fase 8** Analytics & Insights (dashboard, categories, also-reported-by, trending velocity) — 🚧 berjalan di branch `feature/analytics-insights`; **"Also reported by" ✅**
+- [ ] **Fase 8** Analytics & Insights (dashboard, categories, also-reported-by, trending velocity) — 🚧 berjalan di branch `feature/analytics-insights`; **"Also reported by" ✅ · Trending velocity ✅**
 - [ ] **Fase 9** Geo Mapping (3D globe, event markers, full map) — ⛔ blocked: butuh sumber koordinat
 
 ## Lisensi

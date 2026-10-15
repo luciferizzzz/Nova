@@ -250,7 +250,16 @@ const STRINGS = {
     'timeline.loading': 'Building timeline…',
     'timeline.loadError': 'Could not load the timeline.',
     'article.alsoReportedBy': 'ALSO REPORTED BY',
-    'article.alsoReportedSources': '{n} other sources'
+    'article.alsoReportedSources': '{n} other sources',
+    'trending.title': 'TRENDING NOW',
+    'trending.subtitle': 'Ranked by article velocity — articles per hour over the window',
+    'trending.window': 'last {n}h',
+    'trending.velocityUnit': '/hr',
+    'trending.articles': '{n} articles',
+    'trending.sources': '{n} sources',
+    'trending.updated': 'updated {ago}',
+    'trending.empty': 'No trending events in this window. Fetch news or widen the range.',
+    'trending.loading': 'Ranking trending events…'
   },
   id: {
     'nav.dashboard': 'Dasbor',
@@ -484,7 +493,16 @@ const STRINGS = {
     'timeline.loading': 'Menyusun garis waktu…',
     'timeline.loadError': 'Gagal memuat garis waktu.',
     'article.alsoReportedBy': 'JUGA DILAPORKAN OLEH',
-    'article.alsoReportedSources': '{n} sumber lain'
+    'article.alsoReportedSources': '{n} sumber lain',
+    'trending.title': 'SEDANG TRENDING',
+    'trending.subtitle': 'Diurutkan menurut laju artikel — artikel per jam dalam rentang',
+    'trending.window': '{n} jam terakhir',
+    'trending.velocityUnit': '/jam',
+    'trending.articles': '{n} artikel',
+    'trending.sources': '{n} sumber',
+    'trending.updated': 'diperbarui {ago}',
+    'trending.empty': 'Tidak ada event trending dalam rentang ini. Muat berita atau perlebar rentang.',
+    'trending.loading': 'Menyusun event trending…'
   },
   ja: {
     'nav.dashboard': 'ダッシュボード',
@@ -718,7 +736,16 @@ const STRINGS = {
     'timeline.loading': 'タイムラインを構築中…',
     'timeline.loadError': 'タイムラインを読み込めませんでした。',
     'article.alsoReportedBy': '他社も報道',
-    'article.alsoReportedSources': '他 {n} 社'
+    'article.alsoReportedSources': '他 {n} 社',
+    'trending.title': 'トレンド中',
+    'trending.subtitle': '記事の速度（velocity）で順位付け — 期間内の記事/時間',
+    'trending.window': '過去 {n} 時間',
+    'trending.velocityUnit': '/時',
+    'trending.articles': '{n} 件',
+    'trending.sources': '{n} 社',
+    'trending.updated': '更新 {ago}',
+    'trending.empty': 'この期間にトレンドイベントはありません。ニュースを取得するか、期間を広げてください。',
+    'trending.loading': 'トレンドイベントを順位付け中…'
   },
   ko: {
     'nav.dashboard': '대시보드',
@@ -952,7 +979,16 @@ const STRINGS = {
     'timeline.loading': '타임라인 만드는 중…',
     'timeline.loadError': '타임라인을 불러올 수 없습니다.',
     'article.alsoReportedBy': '다른 매체 보도',
-    'article.alsoReportedSources': '다른 매체 {n}곳'
+    'article.alsoReportedSources': '다른 매체 {n}곳',
+    'trending.title': '트렌딩 중',
+    'trending.subtitle': '기사 속도(velocity)로 순위 — 기간 내 기사/시간',
+    'trending.window': '최근 {n}시간',
+    'trending.velocityUnit': '/시',
+    'trending.articles': '{n}건',
+    'trending.sources': '{n}곳',
+    'trending.updated': '업데이트 {ago}',
+    'trending.empty': '이 기간에 트렌딩 이벤트가 없습니다. 뉴스를 가져오거나 기간을 넓히세요.',
+    'trending.loading': '트렌딩 이벤트 순위 집계 중…'
   }
 }
 

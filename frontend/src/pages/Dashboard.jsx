@@ -5,6 +5,7 @@ import QuickFilters from '../components/QuickFilters'
 import NewsCard from '../components/NewsCard'
 import TopStories from '../components/TopStories'
 import GlobePanel from '../components/GlobePanel'
+import TrendingPanel from '../components/TrendingPanel'
 import { FeedSkeleton, default as Loading } from '../components/Loading'
 import useFeed from '../hooks/useFeed'
 import { getStats, getSources, getBerita } from '../services/api'
@@ -13,7 +14,6 @@ import { useI18n } from '../i18n'
 
 const TAB_PARAMS = {
   latest: {},
-  trending: { from: lastHoursISO(24) },
   local: { negara: 'Indonesia' },
   world: { kategori: 'World' },
   technology: { kategori: 'Technology' },
@@ -79,30 +79,36 @@ export default function Dashboard() {
           <GlobePanel />
           <NewsTabs active={tab} onChange={setTab} />
           <QuickFilters filters={filters} onChange={setFilters} sources={sources} />
-          {feed.newCount > 0 && (
-            <button className="new-articles-bar" onClick={feed.refresh}>
-              <span className="new-articles-dot" />
-              {t('feed.newArticles', { n: feed.newCount })}
-              <span className="new-articles-cta">{t('feed.loadNew')}</span>
-            </button>
-          )}
-          {feed.error && <div className="error-banner">{feed.error}</div>}
-          {feed.loading && feed.items.length === 0 ? (
-            <FeedSkeleton count={4} />
-          ) : feed.items.length === 0 ? (
-            <div className="empty panel">{t('feed.noNews')}</div>
+          {tab === 'trending' ? (
+            <TrendingPanel filters={filters} />
           ) : (
-            <div className="news-grid">
-              {feed.items.map((a) => (
-                <NewsCard key={a.id} article={a} />
-              ))}
-            </div>
-          )}
-          {feed.loading && feed.items.length > 0 && <Loading text={t('feed.loadingMore')} />}
-          {feed.hasMore && !feed.loading && (
-            <button className="load-more" onClick={feed.loadMore}>
-              {t('feed.loadMore')}
-            </button>
+            <>
+              {feed.newCount > 0 && (
+                <button className="new-articles-bar" onClick={feed.refresh}>
+                  <span className="new-articles-dot" />
+                  {t('feed.newArticles', { n: feed.newCount })}
+                  <span className="new-articles-cta">{t('feed.loadNew')}</span>
+                </button>
+              )}
+              {feed.error && <div className="error-banner">{feed.error}</div>}
+              {feed.loading && feed.items.length === 0 ? (
+                <FeedSkeleton count={4} />
+              ) : feed.items.length === 0 ? (
+                <div className="empty panel">{t('feed.noNews')}</div>
+              ) : (
+                <div className="news-grid">
+                  {feed.items.map((a) => (
+                    <NewsCard key={a.id} article={a} />
+                  ))}
+                </div>
+              )}
+              {feed.loading && feed.items.length > 0 && <Loading text={t('feed.loadingMore')} />}
+              {feed.hasMore && !feed.loading && (
+                <button className="load-more" onClick={feed.loadMore}>
+                  {t('feed.loadMore')}
+                </button>
+              )}
+            </>
           )}
         </div>
         <TopStories stories={stories} />

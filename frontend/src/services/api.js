@@ -150,6 +150,10 @@ export function getTimeline(params) {
   return request(`/api/timeline${queryString(params)}`)
 }
 
+export function getTrending(params) {
+  return request(`/api/trending${queryString(params)}`)
+}
+
 export function getSources() {
   return request('/api/sources')
 }
