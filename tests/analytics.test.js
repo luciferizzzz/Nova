@@ -144,6 +144,46 @@ function exit(code) {
     }
   }
 
+  console.log('\n=== CATEGORIES (Fitur C) ===');
+  {
+    const savedC = cookie;
+    cookie = '';
+    const unauthC = await call('GET', '/api/categories');
+    cookie = savedC;
+    check('categories tanpa login ditolak', unauthC.status === 401, `HTTP ${unauthC.status}`);
+
+    const ca = await call('GET', '/api/categories?days=30');
+    check('GET /api/categories', ca.status === 200, `HTTP ${ca.status}`);
+    check('bentuk respons (days/since/total/articles/categories)',
+      ca.json && typeof ca.json.days === 'number' && typeof ca.json.since === 'string' &&
+      typeof ca.json.total === 'number' && typeof ca.json.articles === 'number' &&
+      Array.isArray(ca.json.categories));
+
+    const cats = ca.json?.categories || [];
+    if (cats.length > 0) {
+      check('semua kategori punya nama', cats.every((c) => typeof c.kategori === 'string' && c.kategori.length > 0));
+      check('semua count >= 1', cats.every((c) => c.count >= 1));
+      check('sources >= 1', cats.every((c) => c.sources >= 1));
+      check('countries >= 1', cats.every((c) => c.countries >= 1));
+      check('trend = recent - prev', cats.every((c) => c.trend === c.recent - c.prev));
+      check('daily berupa array', cats.every((c) => Array.isArray(c.daily)));
+      check('panjang daily = days', cats.every((c) => c.daily.length === ca.json.days));
+      check('sourceList <= 6', cats.every((c) => Array.isArray(c.sourceList) && c.sourceList.length <= 6));
+      check('headlines <= 5', cats.every((c) => Array.isArray(c.headlines) && c.headlines.length <= 5));
+      check('headline punya slug', cats.every((c) => c.headlines.every((h) => !!h.slug && !!h.judul)));
+      check('categories terurut count DESC',
+        cats.every((c, i) => i === 0 || cats[i - 1].count >= c.count));
+      check('jumlah artikel kategori <= total artikel window',
+        cats.reduce((sum, c) => sum + c.count, 0) <= ca.json.articles);
+
+      const top = cats[0];
+      const single = await call('GET', `/api/trending?hours=24&kategori=${encodeURIComponent(top.kategori)}`);
+      check('kategori bisa dipakai filter endpoint lain (/api/trending)', single.status === 200, `HTTP ${single.status}`);
+    } else {
+      check('ada minimal 1 kategori (30 hari)', false, 'DB kosong');
+    }
+  }
+
   console.log('\n=== REGRESI ===');
   for (const p of ['/api/berita?limit=3', '/api/berita/stats', '/api/events?limit=3', '/api/timeline?days=7']) {
     const x = await call('GET', p);

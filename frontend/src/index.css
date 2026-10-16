@@ -1634,6 +1634,83 @@ button {
   white-space: nowrap;
 }
 
+/* ================= CATEGORIES (Phase 8) ================= */
+
+.cat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.cat-card {
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cat-card-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+}
+
+.cat-count {
+  margin-left: auto;
+  font-size: 16px;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.cat-count small {
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+.cat-trend {
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.cat-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  letter-spacing: 0.6px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+.cat-spark-wrap {
+  height: 48px;
+}
+
+.cat-spark-wrap .wl-spark {
+  height: 100%;
+}
+
+.cat-card.open .cat-spark-wrap {
+  height: 36px;
+}
+
+.cat-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
 /* ================= TABLE ================= */
 
 .table-wrap {

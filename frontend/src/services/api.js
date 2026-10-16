@@ -154,6 +154,10 @@ export function getTrending(params) {
   return request(`/api/trending${queryString(params)}`)
 }
 
+export function getCategories(params) {
+  return request(`/api/categories${queryString(params)}`)
+}
+
 export function getSources() {
   return request('/api/sources')
 }

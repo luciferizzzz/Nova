@@ -48,6 +48,7 @@ Sistem agregasi berita **local-first** yang berjalan di laptop/PC Anda. NOVA men
 ### Analytics & Insights (Fase 8) — berjalan
 - **"Also reported by"**: di halaman detail artikel, tampilkan sumber lain yang melaporkan peristiwa yang sama (corroboration lintas sumber), memakai klaster event yang sudah ada
 - **Trending velocity**: tab Trending kini diurutkan menurut laju artikel per jam per event (velocity) — menggantikan feed 24 jam biasa; panel menampilkan peringkat event + kecepatan liputan + headline terbaru
+- **Categories**: halaman `/categories` mengagregasi berita per kategori — jumlah artikel + porsi, keragaman sumber & negara, tren 7 hari, sparkline harian, sumber teratas, dan headline terbaru (read-only, memakai `berita` yang sudah ada)
 
 ## Persyaratan
 
@@ -145,6 +146,7 @@ Semua endpoint di bawah `/api` memerlukan cookie sesi (login via `POST /api/auth
 | `POST` | `/api/events/scan` | Jalankan ulang deteksi peristiwa secara manual |
 | `GET` | `/api/timeline` | Agregasi berita per hari; query `days` (≤120), `from`, `to`, `kategori`, `negara`, `sumber` |
 | `GET` | `/api/trending` | Peringkat event menurut velocity (artikel/jam); query `hours` (≤720), `limit` (≤50), `negara`, `kategori`, `sumber`, `bahasa` |
+| `GET` | `/api/categories` | Agregasi per kategori: jumlah artikel, sumber, negara, tren, sparkline harian, sumber teratas, headline terbaru; query `days` (≤365), `limit` (≤50) |
 | `POST` | `/api/ai/events/:id/summarize` | Ringkasan AI per peristiwa (di-cache di DB) |
 | `POST` | `/api/ai/timeline/daily-summary` | Digest harian berita (Daily TL;DR) |
 | `GET` | `/api/ai/topics` | Daftar topik hasil ekstraksi; query `days`, `limit` |
@@ -162,7 +164,7 @@ Nova/
 │   ├── database/        # Koneksi SQLite + schema (db.js, schema.js)
 │   ├── middleware/      # requireAuth, dll
 │   ├── routes/          # Express routers (auth, berita, sources, events, …)
-│   ├── services/        # rssFetcher, rssSources, scheduler, eventEngine, aiSummarizer, watchlistInsights, topicEngine, session
+│   ├── services/        # rssFetcher, rssSources, scheduler, eventEngine, aiSummarizer, watchlistInsights, topicEngine, categoryEngine, session
 │   ├── utils/           # password (Argon2id)
 │   └── server.js        # Entry point API
 ├── cli/                 # CLI `nova` (start/status/doctor)
@@ -185,7 +187,7 @@ Nova/
 - [x] **Fase 6** Intelligence core (saved searches, watchlist, events, timeline) — rilis v1.2.0
 - [x] **Fase 7** AI Layer (AI summarization, watchlist intelligence, topic analysis) — rilis v1.3.0
 - [x] **Appearance** Color Themes (10 accent × light/dark) — rilis v1.4.0
-- [ ] **Fase 8** Analytics & Insights (dashboard, categories, also-reported-by, trending velocity) — 🚧 berjalan di branch `feature/analytics-insights`; **"Also reported by" ✅ · Trending velocity ✅**
+- [ ] **Fase 8** Analytics & Insights (dashboard, categories, also-reported-by, trending velocity) — 🚧 berjalan di branch `feature/analytics-insights`; **"Also reported by" ✅ · Trending velocity ✅ · Categories ✅**
 - [ ] **Fase 9** Geo Mapping (3D globe, event markers, full map) — ⛔ blocked: butuh sumber koordinat
 
 ## Lisensi
