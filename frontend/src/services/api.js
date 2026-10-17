@@ -61,6 +61,10 @@ export function getArticle(slug) {
   return request(`/api/berita/${encodeURIComponent(slug)}`)
 }
 
+export function getCorroboration(slug) {
+  return request(`/api/berita/${encodeURIComponent(slug)}/corroboration`)
+}
+
 export function toggleBookmark(articleId) {
   return request('/api/bookmarks', {
     method: 'POST',
@@ -144,6 +148,18 @@ export function summarizeTimelineDay(date) {
 
 export function getTimeline(params) {
   return request(`/api/timeline${queryString(params)}`)
+}
+
+export function getTrending(params) {
+  return request(`/api/trending${queryString(params)}`)
+}
+
+export function getCategories(params) {
+  return request(`/api/categories${queryString(params)}`)
+}
+
+export function getAnalyticsSummary(params) {
+  return request(`/api/analytics/summary${queryString(params)}`)
 }
 
 export function getSources() {

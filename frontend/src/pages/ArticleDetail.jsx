@@ -1,24 +1,31 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { getArticle } from '../services/api'
-import { safeImage, formatDate, stripHtml, categoryClass } from '../utils/format'
+import { getArticle, getCorroboration } from '../services/api'
+import { safeImage, formatDate, stripHtml, categoryClass, timeAgo } from '../utils/format'
 import BookmarkButton from '../components/BookmarkButton'
 import Loading from '../components/Loading'
 import { ArrowLeftIcon, ExternalIcon } from '../components/icons'
+import { useI18n } from '../i18n'
 
 export default function ArticleDetail() {
   const { slug } = useParams()
+  const { t } = useI18n()
   const [article, setArticle] = useState(null)
+  const [corroboration, setCorroboration] = useState(null)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     setLoading(true)
     setError('')
+    setCorroboration(null)
     getArticle(slug)
       .then(setArticle)
       .catch((err) => setError(err.message || 'Article not found'))
       .finally(() => setLoading(false))
+    getCorroboration(slug)
+      .then(setCorroboration)
+      .catch(() => setCorroboration(null))
   }, [slug])
 
   if (loading) return <Loading />
@@ -67,6 +74,37 @@ export default function ArticleDetail() {
             </a>
           </div>
         </div>
+
+        {corroboration && corroboration.sourceCount > 0 && (
+          <div className="panel corroboration">
+            <div className="corroboration-head">
+              <span className="corroboration-title">{t('article.alsoReportedBy')}</span>
+              <span className="corroboration-count">
+                {t('article.alsoReportedSources', { n: corroboration.sourceCount })}
+              </span>
+            </div>
+            <div className="corroboration-sources">
+              {corroboration.sources.map((s) => (
+                <span key={s.sumber} className="corroboration-source">
+                  {s.sumber}
+                  <span className="corroboration-source-count">{s.count}</span>
+                </span>
+              ))}
+            </div>
+            <div className="corroboration-list">
+              {corroboration.articles.slice(0, 6).map((a) => (
+                <div key={a.id} className="corroboration-item">
+                  <Link to={`/berita/${a.slug}`} className="corroboration-link">
+                    {stripHtml(a.judul)}
+                  </Link>
+                  <span className="corroboration-meta">
+                    {a.sumber} · {timeAgo(a.created_at)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

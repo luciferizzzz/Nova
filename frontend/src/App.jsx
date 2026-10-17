@@ -13,7 +13,9 @@ import SavedSearches from './pages/SavedSearches'
 import Watchlist from './pages/Watchlist'
 import Events from './pages/Events'
 import Topics from './pages/Topics'
+import Categories from './pages/Categories'
 import Timeline from './pages/Timeline'
+import Analytics from './pages/Analytics'
 import Settings from './pages/Settings'
 import About from './pages/About'
 import Export from './pages/Export'
@@ -51,8 +53,8 @@ export default function App() {
               <Route path="/settings" element={<Settings />} />
               <Route path="/map" element={<Placeholder />} />
               <Route path="/timeline" element={<Timeline />} />
-              <Route path="/analytics" element={<Placeholder />} />
-              <Route path="/categories" element={<Placeholder />} />
+              <Route path="/analytics" element={<Analytics />} />
+              <Route path="/categories" element={<Categories />} />
               <Route path="/about" element={<About />} />
               <Route path="/tools/ai" element={<Placeholder />} />
               <Route path="/tools/searches" element={<SavedSearches />} />

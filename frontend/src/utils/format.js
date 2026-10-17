@@ -39,7 +39,10 @@ export function number(n) {
 }
 
 export function lastHoursISO(hours) {
-  return new Date(Date.now() - hours * 3600 * 1000).toISOString()
+  // Menerima angka ('24') atau string chip filter ('24h', '6h', '1h').
+  const n = typeof hours === 'number' ? hours : parseInt(String(hours).replace(/[^0-9]/g, ''), 10)
+  const h = Number.isFinite(n) && n > 0 ? n : 24
+  return new Date(Date.now() - h * 3600 * 1000).toISOString()
 }
 
 export function stripHtml(html) {
