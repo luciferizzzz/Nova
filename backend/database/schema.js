@@ -99,7 +99,6 @@ function applySchema(db) {
     CREATE INDEX IF NOT EXISTS idx_berita_negara ON berita(negara);
     CREATE INDEX IF NOT EXISTS idx_berita_sumber ON berita(sumber);
     CREATE INDEX IF NOT EXISTS idx_berita_created ON berita(created_at);
-    CREATE INDEX IF NOT EXISTS idx_berita_slug ON berita(slug);
     CREATE UNIQUE INDEX IF NOT EXISTS idx_berita_link_asli ON berita(link_asli);
   `)
 
