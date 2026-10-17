@@ -1711,6 +1711,231 @@ button {
   border-top: 1px solid var(--border);
 }
 
+/* ================= ANALYTICS (Phase 8 — Fitur D) ================= */
+
+.ana-panel {
+  padding: 18px 22px;
+  margin-bottom: 16px;
+}
+
+.ana-panel-head {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-bottom: 14px;
+}
+
+.ana-panel-title {
+  font-size: 11px;
+  letter-spacing: 2.5px;
+  color: var(--text-dim);
+}
+
+.ana-panel-sub {
+  font-size: 10px;
+  color: var(--text-faint);
+}
+
+.ana-coverage {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 6px;
+}
+
+.ana-coverage-num {
+  font-size: 34px;
+  font-weight: 700;
+  color: var(--accent-bright);
+  letter-spacing: 1px;
+  font-variant-numeric: tabular-nums;
+  min-width: 96px;
+}
+
+.ana-coverage-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.ana-coverage-meta {
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.ana-bar {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--bg-2);
+  border: 1px solid var(--border-soft);
+  overflow: hidden;
+}
+
+.ana-bar-sm {
+  height: 6px;
+  flex: 1;
+}
+
+.ana-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent-strong), var(--accent-bright));
+  min-width: 2px;
+}
+
+.ana-block {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.ana-block-title {
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--text-faint);
+  margin-bottom: 8px;
+}
+
+.ana-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.ana-grid .ana-panel {
+  margin-bottom: 0;
+}
+
+.ana-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.ana-list-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.ana-list-item:last-child {
+  border-bottom: none;
+}
+
+.ana-list-body {
+  min-width: 0;
+  flex: 1;
+}
+
+.ana-list-topline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.ana-list-link {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  color: var(--text);
+  text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ana-list-link:hover {
+  color: var(--accent-bright);
+}
+
+.ana-list-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-faint);
+  white-space: nowrap;
+}
+
+.ana-rank {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent-bright);
+  letter-spacing: 1px;
+  width: 24px;
+  flex-shrink: 0;
+}
+
+.ana-velocity {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent-bright);
+  font-variant-numeric: tabular-nums;
+}
+
+.ana-velocity-unit {
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--text-faint);
+}
+
+.ana-event-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 6px;
+  line-height: 1.35;
+}
+
+.ana-cats {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ana-cat-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ana-cat-label {
+  text-decoration: none;
+  min-width: 96px;
+}
+
+.ana-cat-count {
+  font-size: 13px;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  min-width: 48px;
+  text-align: right;
+}
+
+.ana-cat-share {
+  font-size: 11px;
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+  min-width: 36px;
+  text-align: right;
+}
+
+@media (max-width: 900px) {
+  .ana-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ================= TABLE ================= */
 
 .table-wrap {

@@ -158,6 +158,10 @@ export function getCategories(params) {
   return request(`/api/categories${queryString(params)}`)
 }
 
+export function getAnalyticsSummary(params) {
+  return request(`/api/analytics/summary${queryString(params)}`)
+}
+
 export function getSources() {
   return request('/api/sources')
 }

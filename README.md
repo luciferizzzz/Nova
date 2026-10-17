@@ -49,6 +49,7 @@ Sistem agregasi berita **local-first** yang berjalan di laptop/PC Anda. NOVA men
 - **"Also reported by"**: di halaman detail artikel, tampilkan sumber lain yang melaporkan peristiwa yang sama (corroboration lintas sumber), memakai klaster event yang sudah ada
 - **Trending velocity**: tab Trending kini diurutkan menurut laju artikel per jam per event (velocity) — menggantikan feed 24 jam biasa; panel menampilkan peringkat event + kecepatan liputan + headline terbaru
 - **Categories**: halaman `/categories` mengagregasi berita per kategori — jumlah artikel + porsi, keragaman sumber & negara, tren 7 hari, sparkline harian, sumber teratas, dan headline terbaru (read-only, memakai `berita` yang sudah ada)
+- **Analytics dashboard**: halaman `/analytics` merangkum ketiga insight di atas dalam satu tampilan read-only — cakupan corroboration lintas sumber (dengan bar + event paling terverifikasi), event velocity teratas, dan distribusi artikel per kategori; semuanya memakai data yang sudah ada
 
 ## Persyaratan
 
@@ -147,6 +148,7 @@ Semua endpoint di bawah `/api` memerlukan cookie sesi (login via `POST /api/auth
 | `GET` | `/api/timeline` | Agregasi berita per hari; query `days` (≤120), `from`, `to`, `kategori`, `negara`, `sumber` |
 | `GET` | `/api/trending` | Peringkat event menurut velocity (artikel/jam); query `hours` (≤720), `limit` (≤50), `negara`, `kategori`, `sumber`, `bahasa` |
 | `GET` | `/api/categories` | Agregasi per kategori: jumlah artikel, sumber, negara, tren, sparkline harian, sumber teratas, headline terbaru; query `days` (≤365), `limit` (≤50) |
+| `GET` | `/api/analytics/summary` | Ringkasan Analytics Dashboard (Fase 8 D): total, cakupan corroboration + event paling terverifikasi, event velocity teratas, distribusi kategori; query `hours` (≤720), `days` (≤365), `limit` (≤25) |
 | `POST` | `/api/ai/events/:id/summarize` | Ringkasan AI per peristiwa (di-cache di DB) |
 | `POST` | `/api/ai/timeline/daily-summary` | Digest harian berita (Daily TL;DR) |
 | `GET` | `/api/ai/topics` | Daftar topik hasil ekstraksi; query `days`, `limit` |
@@ -187,7 +189,7 @@ Nova/
 - [x] **Fase 6** Intelligence core (saved searches, watchlist, events, timeline) — rilis v1.2.0
 - [x] **Fase 7** AI Layer (AI summarization, watchlist intelligence, topic analysis) — rilis v1.3.0
 - [x] **Appearance** Color Themes (10 accent × light/dark) — rilis v1.4.0
-- [ ] **Fase 8** Analytics & Insights (dashboard, categories, also-reported-by, trending velocity) — 🚧 berjalan di branch `feature/analytics-insights`; **"Also reported by" ✅ · Trending velocity ✅ · Categories ✅**
+- [ ] **Fase 8** Analytics & Insights (dashboard, categories, also-reported-by, trending velocity) — 🚧 berjalan di branch `feature/analytics-insights`; **"Also reported by" ✅ · Trending velocity ✅ · Categories ✅ · Analytics dashboard ✅** (menunggu konfirmasi merge)
 - [ ] **Fase 9** Geo Mapping (3D globe, event markers, full map) — ⛔ blocked: butuh sumber koordinat
 
 ## Lisensi

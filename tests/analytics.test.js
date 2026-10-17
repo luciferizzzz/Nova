@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 // Smoke test Fase 8 — Analytics & Insights.
 // Fitur A: "Also reported by" (corroboration antar sumber).
+// Fitur B: Trending velocity (artikel/jam per event).
+// Fitur C: Categories page (agregasi per kategori).
+// Fitur D: Analytics dashboard (ringkasan read-only /api/analytics/summary).
 // Dijalankan terhadap server yang hidup: npm start / nova, lalu `npm run test:analytics`.
 const BASE = process.env.NOVA_URL || 'http://localhost:3000';
 let cookie = '';
@@ -182,6 +185,63 @@ function exit(code) {
     } else {
       check('ada minimal 1 kategori (30 hari)', false, 'DB kosong');
     }
+  }
+
+  console.log('\n=== ANALYTICS DASHBOARD (Fitur D) ===');
+  {
+    const savedD = cookie;
+    cookie = '';
+    const unauthD = await call('GET', '/api/analytics/summary');
+    cookie = savedD;
+    check('analytics tanpa login ditolak', unauthD.status === 401, `HTTP ${unauthD.status}`);
+
+    const an = await call('GET', '/api/analytics/summary?hours=24&days=30&limit=8');
+    check('GET /api/analytics/summary', an.status === 200, `HTTP ${an.status}`);
+    check('bentuk respons (window/totals/corroboration/trending/categories)',
+      an.json && typeof an.json.window === 'object' &&
+      typeof an.json.totals === 'object' && typeof an.json.corroboration === 'object' &&
+      Array.isArray(an.json.trending) && typeof an.json.categories === 'object');
+
+    check('window (hours/days/since)',
+      an.json?.window?.hours === 24 && an.json?.window?.days === 30 && typeof an.json?.window?.since === 'string');
+
+    const tot = an.json?.totals || {};
+    check('totals (articles/events/sources/countries) angka',
+      ['articles', 'events', 'sources', 'countries'].every((k) => typeof tot[k] === 'number'));
+
+    const corr = an.json?.corroboration || {};
+    check('corroboration.events <= totals.events', corr.events <= tot.events, `${corr.events} vs ${tot.events}`);
+    check('corroboration.coveragePct 0..100', corr.coveragePct >= 0 && corr.coveragePct <= 100, `${corr.coveragePct}%`);
+    check('corroboration.top array', Array.isArray(corr.top));
+    check('top corroborated: source_count >= 2',
+      (corr.top || []).every((e) => e.source_count >= 2));
+    check('top corroborated punya sample_slug',
+      (corr.top || []).every((e) => !!e.sample_slug));
+    check('coveragePct = round(events/totals.events*100)',
+      corr.coveragePct === (tot.events ? Math.round((corr.events / tot.events) * 100) : 0));
+
+    const tr = an.json?.trending || [];
+    check('trending <= limit', tr.length <= 8, `${tr.length}`);
+    check('trending velocity > 0', tr.every((e) => e.velocity > 0));
+    check('trending velocity = recent_count/hours',
+      tr.every((e) => Math.abs(e.velocity - e.recent_count / an.json.window.hours) < 0.01));
+    check('trending terurut recent_count DESC',
+      tr.every((e, i) => i === 0 || tr[i - 1].recent_count >= e.recent_count));
+
+    const cat = an.json?.categories || {};
+    check('categories.items array', Array.isArray(cat.items));
+    check('categories.items <= limit', (cat.items || []).length <= 8);
+    check('categories.items terurut count DESC',
+      (cat.items || []).every((c, i) => i === 0 || cat.items[i - 1].count >= c.count));
+    check('categories.items punya field kategori/count/sources/countries/trend',
+      (cat.items || []).every((c) => typeof c.kategori === 'string' && typeof c.count === 'number' &&
+        typeof c.sources === 'number' && typeof c.countries === 'number' && typeof c.trend === 'number'));
+
+    // limit di-clamp ke 1..25
+    const clamped = await call('GET', '/api/analytics/summary?limit=999');
+    check('limit besar di-clamp <= 25', (clamped.json?.trending || []).length <= 25);
+    const badHours = await call('GET', '/api/analytics/summary?hours=abc');
+    check('hours tidak valid -> default 24', badHours.json?.window?.hours === 24, `hours=${badHours.json?.window?.hours}`);
   }
 
   console.log('\n=== REGRESI ===');
