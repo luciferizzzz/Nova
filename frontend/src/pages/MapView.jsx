@@ -1,9 +1,24 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import { getEvents, setEventLocation, clearEventLocation } from '../services/api'
+import 'leaflet.markercluster/dist/MarkerCluster.css'
+import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
+import 'leaflet.markercluster/dist/leaflet.markercluster.js'
+import { getEvents, setEventLocation, clearEventLocation, enrichEvents } from '../services/api'
 import { categoryClass, number } from '../utils/format'
 import { useI18n } from '../i18n'
+
+// Fix Leaflet icon paths for Vite build
+import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png'
+import markerIcon from 'leaflet/dist/images/marker-icon.png'
+import markerShadow from 'leaflet/dist/images/marker-shadow.png'
+
+delete L.Icon.Default.prototype._getIconUrl
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: markerIcon2x,
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow
+})
 
 // Legend sama dengan halaman Events (Milestone A) — sumber kebenaran tetap satu.
 const EVENT_LEGEND = ['Conflict', 'Politics', 'Disaster', 'Economy', 'Technology', 'Other']
@@ -36,13 +51,15 @@ export default function MapView() {
   const [loading, setLoading] = useState(true)
   const [notice, setNotice] = useState('')
   const [category, setCategory] = useState('')
+  const [hiddenCats, setHiddenCats] = useState(new Set())
+  const [enriching, setEnriching] = useState(false)
   // { id, stable_id, title, lat, lng, name, hadCoords }
   const [editing, setEditing] = useState(null)
   const [saving, setSaving] = useState(false)
 
   const mapEl = useRef(null)
   const mapRef = useRef(null)
-  const groupRef = useRef(null)
+  const clusterRef = useRef(null)
   const fittedRef = useRef(false)
   const editingRef = useRef(null)
   const eventsRef = useRef([])
@@ -90,8 +107,9 @@ export default function MapView() {
       maxZoom: 19,
       opacity: 0.85
     }).addTo(map)
-    const group = L.layerGroup().addTo(map)
-    groupRef.current = group
+    const cluster = L.markerClusterGroup({ showCoverageOnHover: false, maxClusterRadius: 40 })
+    map.addLayer(cluster)
+    clusterRef.current = cluster
     mapRef.current = map
 
     // Klik peta saat mode edit → isi koordinat form (Hybrid A+B: pick-on-map).
@@ -119,7 +137,7 @@ export default function MapView() {
     return () => {
       map.remove()
       mapRef.current = null
-      groupRef.current = null
+      clusterRef.current = null
       fittedRef.current = false
     }
   }, [])
@@ -143,11 +161,12 @@ export default function MapView() {
 
   // Sinkronkan marker dengan data (termasuk setelah save/clear manual).
   useEffect(() => {
-    const group = groupRef.current
-    if (!group) return
-    group.clearLayers()
+    const cluster = clusterRef.current
+    if (!cluster) return
+    cluster.clearLayers()
     const labels = { articles: t('events.articles'), setLocation: t('events.setLocation') }
-    for (const ev of mapped) {
+    const visible = mapped.filter((ev) => !hiddenCats.has(ev.category))
+    for (const ev of visible) {
       const marker = L.circleMarker([ev.latitude, ev.longitude], {
         radius: 6,
         weight: 2,
@@ -155,18 +174,18 @@ export default function MapView() {
         className: `map-pin ${categoryClass(ev.category)}`
       })
       marker.bindPopup(popupHtml(ev, labels), { maxWidth: 280 })
-      group.addLayer(marker)
+      cluster.addLayer(marker)
     }
     const map = mapRef.current
-    if (map && !fittedRef.current && mapped.length) {
+    if (map && !fittedRef.current && visible.length) {
       try {
-        map.fitBounds(group.getBounds().pad(0.25), { maxZoom: 6 })
+        map.fitBounds(cluster.getBounds().pad(0.25), { maxZoom: 6 })
       } catch {
         /* bounds kosong — biarkan default view */
       }
       fittedRef.current = true
     }
-  }, [mapped, t])
+  }, [mapped, hiddenCats, t])
 
   function startEdit(ev) {
     setEditing({
@@ -230,11 +249,57 @@ export default function MapView() {
     }
   }
 
+  async function handleEnrich() {
+    setEnriching(true)
+    setNotice('')
+    try {
+      const r = await enrichEvents()
+      setNotice(`Enriched: ${r.scanned} scanned, ${r.matched} matched`)
+      await load()
+      fittedRef.current = false
+    } catch (err) {
+      setNotice(err.message || t('events.locationError'))
+    } finally {
+      setEnriching(false)
+    }
+  }
+
+  function toggleLegend(cat) {
+    setHiddenCats((prev) => {
+      const next = new Set(prev)
+      if (next.has(cat)) next.delete(cat)
+      else next.add(cat)
+      return next
+    })
+  }
+
+  function fitToMapped() {
+    const map = mapRef.current
+    const cluster = clusterRef.current
+    if (!map || !cluster) return
+    try {
+      if (cluster.getLayers().length > 0) {
+        map.fitBounds(cluster.getBounds().pad(0.25), { maxZoom: 6 })
+      }
+    } catch {}
+  }
+
+  function resetView() {
+    const map = mapRef.current
+    if (!map) return
+    map.setView([15, 100], 3)
+  }
+
   return (
     <div className="page map-page">
       <div className="page-head">
         <h2>{t('map.title')}</h2>
         <div className="page-head-actions">
+          <button className="apply-btn" onClick={handleEnrich} disabled={enriching}>
+            {enriching ? '…' : 'Enrich Unmapped'}
+          </button>
+          <button className="reset-btn" onClick={fitToMapped}>Fit to mapped</button>
+          <button className="reset-btn" onClick={resetView}>Reset view</button>
           <span className="page-hint">
             {loading ? '…' : `${number(mapped.length)} / ${number(allEvents.length)} ${t('map.progress')}`}
           </span>
@@ -257,12 +322,23 @@ export default function MapView() {
 
       <div className="panel event-legend">
         <span className="event-legend-title">{t('events.legend')}</span>
-        {EVENT_LEGEND.map((type) => (
-          <span key={type} className="event-legend-item">
-            <span className={`event-dot ${categoryClass(type)}`} />
-            {type}
-          </span>
-        ))}
+        {EVENT_LEGEND.map((type) => {
+          const count = mapped.filter((e) => e.category === type).length
+          const hidden = hiddenCats.has(type)
+          return (
+            <button
+              key={type}
+              type="button"
+              className="event-legend-item"
+              onClick={() => toggleLegend(type)}
+              style={{ opacity: hidden ? 0.4 : 1, cursor: 'pointer' }}
+              title={hidden ? 'Show' : 'Hide'}
+            >
+              <span className={`event-dot ${categoryClass(type)}`} />
+              {type} ({count})
+            </button>
+          )
+        })}
       </div>
 
       {notice && <div className="error-banner">{notice}</div>}
