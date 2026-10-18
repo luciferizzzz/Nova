@@ -1,4 +1,5 @@
 const crypto = require('crypto')
+const { enrichEvents } = require('./locationEnricher')
 
 const STOPWORDS = new Set(
   `
@@ -101,7 +102,18 @@ function detectEvents(db, opts = {}) {
   const clusters = clusterArticles(articles, opts)
   const records = buildEventRecords(articles, clusters)
   persistEvents(db, records)
-  return { articles: articles.length, events: records.length }
+
+  // Location enrichment (Phase 9) berjalan otomatis tiap scan. Hanya mengisi
+  // event yang masih NULL — tidak pernah menimpa koordinat manual/gazetteer
+  // lama. Kegagalan enrichment tidak boleh menggagalkan scan.
+  let enriched = { scanned: 0, matched: 0 }
+  try {
+    enriched = enrichEvents(db)
+  } catch (err) {
+    console.warn('[eventEngine] location enrichment gagal:', err.message)
+  }
+
+  return { articles: articles.length, events: records.length, enriched: enriched.matched }
 }
 
 function previewClusters(db, opts = {}) {

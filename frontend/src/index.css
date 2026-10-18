@@ -3270,6 +3270,49 @@ input[type='file']::file-selector-button:hover {
   color: var(--text-dim);
 }
 
+/* EVENT LOCATION (Phase 9 — Location Enricher, Milestone A) */
+.event-location {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0 4px;
+  font-size: 12px;
+}
+
+.event-location-label {
+  font-size: 10px;
+  letter-spacing: 1.8px;
+  color: var(--text-dim);
+}
+
+.event-location-value {
+  color: var(--text);
+}
+
+.event-location-value.muted {
+  color: var(--text-faint);
+}
+
+.event-location-meta {
+  margin-left: 6px;
+  font-size: 10px;
+  letter-spacing: 0.6px;
+  color: var(--text-faint);
+}
+
+.event-location-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 12px;
+}
+
+.event-location-form {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) auto auto;
+  gap: 8px;
+  margin: 8px 0 12px;
+}
+
 /* ================= RESPONSIVE ================= */
 
 @media (max-width: 1200px) {

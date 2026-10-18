@@ -1,5 +1,6 @@
 const express = require('express')
 const { detectEvents } = require('../services/eventEngine')
+const { enrichEvents, setEventLocation, clearEventLocation } = require('../services/locationEnricher')
 
 const router = express.Router()
 
@@ -101,6 +102,37 @@ router.post('/scan', async (req, res) => {
     res.json({ success: true, ...result })
   } catch (err) {
     res.status(500).json({ error: err.message })
+  }
+})
+
+// Jalankan location enrichment manual (Phase 9 Milestone A) tanpa scan ulang.
+router.post('/enrich', (req, res) => {
+  try {
+    const result = enrichEvents(req.db)
+    res.json({ success: true, ...result })
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// Set koordinat manual per event (fallback Hybrid A+B — keputusan 2026-10-17).
+router.put('/:id/location', (req, res) => {
+  try {
+    const result = setEventLocation(req.db, req.params.id, req.body || {})
+    res.json({ success: true, ...result })
+  } catch (err) {
+    const notFound = /tidak ditemukan/.test(err.message)
+    res.status(notFound ? 404 : 400).json({ error: err.message })
+  }
+})
+
+// Hapus koordinat manual → event jadi kandidat auto di scan berikutnya.
+router.delete('/:id/location', (req, res) => {
+  try {
+    const result = clearEventLocation(req.db, req.params.id)
+    res.json({ success: true, ...result })
+  } catch (err) {
+    res.status(404).json({ error: err.message })
   }
 })
 

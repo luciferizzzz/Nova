@@ -138,6 +138,18 @@ export function scanEvents() {
   return request('/api/events/scan', { method: 'POST' })
 }
 
+export function enrichEvents() {
+  return request('/api/events/enrich', { method: 'POST' })
+}
+
+export function setEventLocation(id, payload) {
+  return request(`/api/events/${id}/location`, { method: 'PUT', body: JSON.stringify(payload) })
+}
+
+export function clearEventLocation(id) {
+  return request(`/api/events/${id}/location`, { method: 'DELETE' })
+}
+
 export function summarizeEvent(id) {
   return request(`/api/ai/events/${id}/summarize`, { method: 'POST' })
 }

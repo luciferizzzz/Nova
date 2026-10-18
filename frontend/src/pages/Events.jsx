@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { getEvents, getEvent, scanEvents, summarizeEvent } from '../services/api'
+import { getEvents, getEvent, scanEvents, summarizeEvent, setEventLocation, clearEventLocation } from '../services/api'
 import { timeAgo, number, categoryClass, stripHtml } from '../utils/format'
 import { RefreshIcon } from '../components/icons'
 import { useI18n } from '../i18n'
@@ -18,6 +18,8 @@ export default function Events() {
   const [expanded, setExpanded] = useState(null)
   const [detail, setDetail] = useState(null)
   const [summarizing, setSummarizing] = useState({})
+  const [locEdit, setLocEdit] = useState(null) // { id, lat, lng, name }
+  const [savingLoc, setSavingLoc] = useState(false)
 
   function load() {
     setLoading(true)
@@ -86,6 +88,52 @@ export default function Events() {
 
   const categories = data?.categories || []
   const events = data?.events || []
+
+  function applyLocationPatch(id, patch) {
+    setDetail((d) => (d && d.id === id ? { ...d, ...patch } : d))
+    setData((prev) => {
+      if (!prev?.events) return prev
+      return { ...prev, events: prev.events.map((e) => (e.id === id ? { ...e, ...patch } : e)) }
+    })
+  }
+
+  async function handleSaveLocation(ev) {
+    if (!locEdit) return
+    setSavingLoc(true)
+    try {
+      const r = await setEventLocation(ev.id, {
+        latitude: parseFloat(locEdit.lat),
+        longitude: parseFloat(locEdit.lng),
+        name: locEdit.name || undefined
+      })
+      applyLocationPatch(ev.id, {
+        latitude: r.latitude,
+        longitude: r.longitude,
+        location_name: r.locationName,
+        location_source: r.locationSource
+      })
+      setNotice(t('events.locationSaved'))
+      setLocEdit(null)
+    } catch (err) {
+      setNotice(err.message || t('events.locationError'))
+    } finally {
+      setSavingLoc(false)
+    }
+  }
+
+  async function handleClearLocation(ev) {
+    try {
+      await clearEventLocation(ev.id)
+      applyLocationPatch(ev.id, {
+        latitude: null,
+        longitude: null,
+        location_name: null,
+        location_source: null
+      })
+    } catch (err) {
+      setNotice(err.message || t('events.locationError'))
+    }
+  }
 
   return (
     <div className="page">
@@ -170,6 +218,81 @@ export default function Events() {
                       {summarizing[ev.id] ? t('events.summarizing') : t('events.generateSummary')}
                     </button>
                   </div>
+                  <div className="event-location">
+                    <span className="event-location-label">{t('events.location')}</span>
+                    {detail.latitude != null && detail.longitude != null ? (
+                      <span className="event-location-value">
+                        {detail.location_name || `${Number(detail.latitude).toFixed(2)}, ${Number(detail.longitude).toFixed(2)}`}
+                        <small className="event-location-meta">
+                          {detail.location_source === 'manual' ? t('events.locationManual') : t('events.locationAuto')}
+                        </small>
+                      </span>
+                    ) : (
+                      <span className="event-location-value muted">{t('events.locationMissing')}</span>
+                    )}
+                    <span className="event-location-actions">
+                      <button
+                        className="btn-link"
+                        onClick={() =>
+                          setLocEdit({
+                            id: ev.id,
+                            lat: detail.latitude ?? '',
+                            lng: detail.longitude ?? '',
+                            name: detail.location_name || ''
+                          })
+                        }
+                      >
+                        {t('events.setLocation')}
+                      </button>
+                      {detail.latitude != null && (
+                        <button className="btn-link" onClick={() => handleClearLocation(ev)}>
+                          {t('events.clearLocation')}
+                        </button>
+                      )}
+                    </span>
+                  </div>
+                  {locEdit?.id === ev.id && (
+                    <form
+                      className="event-location-form"
+                      onSubmit={(e) => {
+                        e.preventDefault()
+                        handleSaveLocation(ev)
+                      }}
+                    >
+                      <input
+                        className="finput"
+                        type="number"
+                        step="any"
+                        placeholder={t('events.latitude')}
+                        value={locEdit.lat}
+                        onChange={(e) => setLocEdit({ ...locEdit, lat: e.target.value })}
+                        required
+                      />
+                      <input
+                        className="finput"
+                        type="number"
+                        step="any"
+                        placeholder={t('events.longitude')}
+                        value={locEdit.lng}
+                        onChange={(e) => setLocEdit({ ...locEdit, lng: e.target.value })}
+                        required
+                      />
+                      <input
+                        className="finput"
+                        type="text"
+                        maxLength={100}
+                        placeholder={t('events.locationName')}
+                        value={locEdit.name}
+                        onChange={(e) => setLocEdit({ ...locEdit, name: e.target.value })}
+                      />
+                      <button className="apply-btn" type="submit" disabled={savingLoc}>
+                        {savingLoc ? '…' : t('events.saveLocation')}
+                      </button>
+                      <button className="reset-btn" type="button" onClick={() => setLocEdit(null)}>
+                        {t('events.cancelLocation')}
+                      </button>
+                    </form>
+                  )}
                   <div className="event-members">
                     {detail.articles.map((a) => (
                       <div key={a.id} className="event-member">

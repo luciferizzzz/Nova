@@ -118,7 +118,9 @@ const ADDED_COLUMNS = {
     ['summary', 'TEXT'],
     ['summary_provider', 'VARCHAR(50)'],
     ['summary_model', 'VARCHAR(100)'],
-    ['summary_generated_at', 'DATETIME']
+    ['summary_generated_at', 'DATETIME'],
+    ['location_name', 'VARCHAR(100)'],
+    ['location_source', 'VARCHAR(20)']
   ],
   watchlist: [
     ['insight_summary', 'TEXT'],
