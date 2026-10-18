@@ -254,7 +254,7 @@ export default function MapView() {
     setNotice('')
     try {
       const r = await enrichEvents()
-      setNotice(`Enriched: ${r.scanned} scanned, ${r.matched} matched`)
+      setNotice(t('map.enriched', { scanned: r.scanned, matched: r.matched }))
       await load()
       fittedRef.current = false
     } catch (err) {
@@ -296,10 +296,10 @@ export default function MapView() {
         <h2>{t('map.title')}</h2>
         <div className="page-head-actions">
           <button className="apply-btn" onClick={handleEnrich} disabled={enriching}>
-            {enriching ? '…' : 'Enrich Unmapped'}
+            {enriching ? '…' : t('map.enrichBtn')}
           </button>
-          <button className="reset-btn" onClick={fitToMapped}>Fit to mapped</button>
-          <button className="reset-btn" onClick={resetView}>Reset view</button>
+          <button className="reset-btn" onClick={fitToMapped}>{t('map.fitBtn')}</button>
+          <button className="reset-btn" onClick={resetView}>{t('map.resetBtn')}</button>
           <span className="page-hint">
             {loading ? '…' : `${number(mapped.length)} / ${number(allEvents.length)} ${t('map.progress')}`}
           </span>
@@ -332,7 +332,7 @@ export default function MapView() {
               className="event-legend-item"
               onClick={() => toggleLegend(type)}
               style={{ opacity: hidden ? 0.4 : 1, cursor: 'pointer' }}
-              title={hidden ? 'Show' : 'Hide'}
+              title={hidden ? t('map.show') : t('map.hide')}
             >
               <span className={`event-dot ${categoryClass(type)}`} />
               {type} ({count})
