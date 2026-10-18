@@ -64,17 +64,31 @@ export default function MapView() {
   useEffect(load, [])
 
   // Init Leaflet sekali per mount.
+  // Tile: ESRI Canvas (dark/light per tema, tanpa API key, bebas dipakai app kecil dengan atribusi).
+  // - tile.openstreetmap.org DITOLAK Tile Usage Policy OSM → gambar "Access Blocked"
+  //   (dibuktikan header x-blocked, 2026-10-18; dilaporkan user di browser).
+  // - CARTO CDN mengembalikan placeholder statis (MD5 identik lintas koordinat) → gugur.
   useEffect(() => {
     if (!mapEl.current || mapRef.current) return undefined
+    const dark = (document.documentElement.getAttribute('data-theme') || 'dark') === 'dark'
+    const services = 'https://services.arcgisonline.com/ArcGIS/rest/services'
+    const style = dark ? 'Canvas/World_Dark_Gray_Base' : 'Canvas/World_Light_Gray_Base'
+    const labels = dark ? 'Canvas/World_Dark_Gray_Labels' : 'Canvas/World_Light_Gray_Labels'
     const map = L.map(mapEl.current, {
       minZoom: 2,
       maxZoom: 12,
       worldCopyJump: true,
       attributionControl: true
     }).setView([15, 100], 3)
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 18,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    // Catatan: URL tile ESRI berformat {z}/{y}/{x} — y di tengah, bukan {z}/{x}/{y}.
+    L.tileLayer(`${services}/${style}/MapServer/tile/{z}/{y}/{x}`, {
+      maxZoom: 19,
+      attribution:
+        '&copy; <a href="https://www.esri.com/">Esri</a>, Maxar, Earthstar Geographics, and the GIS User Community'
+    }).addTo(map)
+    L.tileLayer(`${services}/${labels}/MapServer/tile/{z}/{y}/{x}`, {
+      maxZoom: 19,
+      opacity: 0.85
     }).addTo(map)
     const group = L.layerGroup().addTo(map)
     groupRef.current = group

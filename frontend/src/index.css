@@ -3532,10 +3532,8 @@ html[data-theme='light'] .map-edit {
   color: #8ab4d8;
 }
 
-/* Tile OSM diputar agar selaras dengan tema gelap (mode gelap = default). */
-html[data-theme='dark'] .leaflet-tile-pane {
-  filter: invert(1) hue-rotate(180deg) brightness(0.92) contrast(0.92);
-}
+/* Tile mengikuti tema via varian ESRI Canvas (Dark/Light Gray) — lihat MapView.jsx.
+   (Tile OSM diblokir kebijakan usage; CARTO CDN kirim placeholder statis.) */
 
 /* ================= RESPONSIVE ================= */
 
