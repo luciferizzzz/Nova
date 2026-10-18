@@ -14,7 +14,8 @@
         "frontend": "npm --prefix frontend run dev",
         "test:ai": "node tests/ai-api.test.js",
     "test:analytics": "node tests/analytics.test.js",
-    "test:location": "node tests/location.test.js"
+    "test:location": "node tests/location.test.js",
+    "test:map": "node tests/map.test.js"
     },
     "keywords": [
         "news",
