@@ -145,6 +145,9 @@ Semua endpoint di bawah `/api` memerlukan cookie sesi (login via `POST /api/auth
 | `GET` | `/api/events` | Daftar peristiwa + hitung per kategori; query `q`, `category`, `limit` (≤200), `offset` |
 | `GET` | `/api/events/:id` | Detail peristiwa + daftar artikel terkait (flag `bookmarked`) |
 | `POST` | `/api/events/scan` | Jalankan ulang deteksi peristiwa secara manual |
+| `POST` | `/api/events/enrich` | Jalankan location enrichment (gazetteer offline) tanpa scan ulang |
+| `PUT` | `/api/events/:id/location` | Set koordinat manual per event (validasi lat −90..90, lng −180..180) |
+| `DELETE` | `/api/events/:id/location` | Hapus koordinat → kembali kandidat auto di scan berikutnya |
 | `GET` | `/api/timeline` | Agregasi berita per hari; query `days` (≤120), `from`, `to`, `kategori`, `negara`, `sumber` |
 | `GET` | `/api/trending` | Peringkat event menurut velocity (artikel/jam); query `hours` (≤720), `limit` (≤50), `negara`, `kategori`, `sumber`, `bahasa` |
 | `GET` | `/api/categories` | Agregasi per kategori: jumlah artikel, sumber, negara, tren, sparkline harian, sumber teratas, headline terbaru; query `days` (≤365), `limit` (≤50) |
