@@ -189,8 +189,8 @@ Nova/
 - [x] **Fase 6** Intelligence core (saved searches, watchlist, events, timeline) — rilis v1.2.0
 - [x] **Fase 7** AI Layer (AI summarization, watchlist intelligence, topic analysis) — rilis v1.3.0
 - [x] **Appearance** Color Themes (10 accent × light/dark) — rilis v1.4.0
-- [ ] **Fase 8** Analytics & Insights (dashboard, categories, also-reported-by, trending velocity) — 🚧 berjalan di branch `feature/analytics-insights`; **"Also reported by" ✅ · Trending velocity ✅ · Categories ✅ · Analytics dashboard ✅** (menunggu konfirmasi merge)
-- [ ] **Fase 9** Geo Mapping (3D globe, event markers, full map) — ⛔ blocked: butuh sumber koordinat
+- [x] **Fase 8** Analytics & Insights (dashboard, categories, also-reported-by, trending velocity) — rilis v1.5.0
+- [ ] **Fase 9** Geo Mapping (location enrichment gazetteer + map view 2D Leaflet, 3D menyusul) — 🟢 siap dieksekusi (keputusan sumber koordinat: hybrid gazetteer offline + manual)
 
 ## Lisensi
 
