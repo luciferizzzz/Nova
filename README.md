@@ -145,6 +145,9 @@ Semua endpoint di bawah `/api` memerlukan cookie sesi (login via `POST /api/auth
 | `GET` | `/api/events` | Daftar peristiwa + hitung per kategori; query `q`, `category`, `limit` (≤200), `offset` |
 | `GET` | `/api/events/:id` | Detail peristiwa + daftar artikel terkait (flag `bookmarked`) |
 | `POST` | `/api/events/scan` | Jalankan ulang deteksi peristiwa secara manual |
+| `POST` | `/api/events/enrich` | Jalankan location enrichment (gazetteer offline) tanpa scan ulang |
+| `PUT` | `/api/events/:id/location` | Set koordinat manual per event (validasi lat −90..90, lng −180..180) |
+| `DELETE` | `/api/events/:id/location` | Hapus koordinat → kembali kandidat auto di scan berikutnya |
 | `GET` | `/api/timeline` | Agregasi berita per hari; query `days` (≤120), `from`, `to`, `kategori`, `negara`, `sumber` |
 | `GET` | `/api/trending` | Peringkat event menurut velocity (artikel/jam); query `hours` (≤720), `limit` (≤50), `negara`, `kategori`, `sumber`, `bahasa` |
 | `GET` | `/api/categories` | Agregasi per kategori: jumlah artikel, sumber, negara, tren, sparkline harian, sumber teratas, headline terbaru; query `days` (≤365), `limit` (≤50) |
@@ -190,7 +193,7 @@ Nova/
 - [x] **Fase 7** AI Layer (AI summarization, watchlist intelligence, topic analysis) — rilis v1.3.0
 - [x] **Appearance** Color Themes (10 accent × light/dark) — rilis v1.4.0
 - [x] **Fase 8** Analytics & Insights (dashboard, categories, also-reported-by, trending velocity) — rilis v1.5.0
-- [ ] **Fase 9** Geo Mapping (location enrichment gazetteer + map view 2D Leaflet, 3D menyusul) — 🟢 siap dieksekusi (keputusan sumber koordinat: hybrid gazetteer offline + manual)
+- [ ] **Fase 9** Geo Mapping — 🟢 berjalan di `feature/geo-mapping` (belum merge): **A location enrichment ✅ + B map view 2D Leaflet ✅** (2026-10-18, tile ESRI Canvas); 3D Globe menyusul (sumber koordinat: hybrid gazetteer offline + manual)
 
 ## Lisensi
 

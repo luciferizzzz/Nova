@@ -4,3 +4,6 @@ data/
 .env
 *.log
 .DS_Store
+NOVA_CONTEXT.md
+nova-filelist.txt
+nova-notes-full.txt

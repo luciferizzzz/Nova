@@ -2740,6 +2740,10 @@ input[type='file']::file-selector-button:hover {
   gap: 6px;
   font-size: 12px;
   color: var(--text-dim);
+  background: none;
+  border: none;
+  font-family: inherit;
+  padding: 0;
 }
 
 .event-dot {
@@ -3270,11 +3274,283 @@ input[type='file']::file-selector-button:hover {
   color: var(--text-dim);
 }
 
+/* EVENT LOCATION (Phase 9 — Location Enricher, Milestone A) */
+.event-location {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0 4px;
+  font-size: 12px;
+}
+
+.event-location-label {
+  font-size: 10px;
+  letter-spacing: 1.8px;
+  color: var(--text-dim);
+}
+
+.event-location-value {
+  color: var(--text);
+}
+
+.event-location-value.muted {
+  color: var(--text-faint);
+}
+
+.event-location-meta {
+  margin-left: 6px;
+  font-size: 10px;
+  letter-spacing: 0.6px;
+  color: var(--text-faint);
+}
+
+.event-location-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 12px;
+}
+
+.event-location-form {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) auto auto;
+  gap: 8px;
+  margin: 8px 0 12px;
+}
+
+/* MAP VIEW (Phase 9 — Map View, Milestone B) */
+.map-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 330px;
+  gap: 14px;
+  align-items: start;
+}
+
+.map-wrap {
+  padding: 0;
+  overflow: hidden;
+}
+
+.map-canvas {
+  width: 100%;
+  height: 62vh;
+  min-height: 420px;
+  background: #101012;
+}
+
+.map-side {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 62vh;
+  min-height: 420px;
+  overflow-y: auto;
+}
+
+.map-side-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.map-side-title {
+  font-size: 10px;
+  letter-spacing: 1.8px;
+  color: var(--text-dim);
+}
+
+.map-side-count {
+  font-size: 11px;
+  color: var(--text-faint);
+}
+
+.map-side-empty {
+  font-size: 12px;
+  color: var(--text-faint);
+  padding: 8px 0;
+}
+
+.map-unmapped-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.map-unmapped-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 9px;
+  border: 1px solid var(--border-soft);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+html[data-theme='light'] .map-unmapped-item {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.map-unmapped-title {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.map-edit {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+html[data-theme='light'] .map-edit {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.map-edit-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.map-edit-hint {
+  font-size: 11px;
+  color: var(--text-faint);
+}
+
+.map-edit-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.map-edit-full {
+  grid-column: 1 / -1;
+}
+
+.map-edit-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Marker: circleMarker berwarna mengikuti token kategori (--cat-*). */
+.leaflet-overlay-svg path.map-pin {
+  stroke-width: 2;
+}
+
+.map-pin.cat-world { stroke: var(--cat-world); fill: rgba(var(--cat-world-rgb), 0.35); }
+.map-pin.cat-tech { stroke: var(--cat-tech); fill: rgba(var(--cat-tech-rgb), 0.35); }
+.map-pin.cat-science { stroke: var(--cat-science); fill: rgba(var(--cat-science-rgb), 0.35); }
+.map-pin.cat-econ { stroke: var(--cat-econ); fill: rgba(var(--cat-econ-rgb), 0.35); }
+.map-pin.cat-politics { stroke: var(--cat-politics); fill: rgba(var(--cat-politics-rgb), 0.35); }
+.map-pin.cat-business { stroke: var(--cat-business); fill: rgba(var(--cat-business-rgb), 0.35); }
+.map-pin.cat-disaster { stroke: var(--cat-disaster); fill: rgba(var(--cat-disaster-rgb), 0.35); }
+.map-pin.cat-other { stroke: var(--cat-other); fill: rgba(var(--cat-other-rgb), 0.35); }
+
+/* Popup gelap mengikuti tema aplikasi. */
+.leaflet-popup-content-wrapper {
+  background: var(--panel, #141416);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+.leaflet-popup-content {
+  margin: 10px 12px;
+}
+
+.leaflet-popup-tip {
+  background: var(--panel, #141416);
+  border: 1px solid var(--border);
+}
+
+.leaflet-popup-close-button {
+  color: var(--text-faint) !important;
+}
+
+.map-popup {
+  display: grid;
+  gap: 6px;
+  min-width: 210px;
+}
+
+.map-popup .badge.cat {
+  justify-self: start;
+}
+
+.map-popup-title {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--text);
+}
+
+.map-popup-meta {
+  font-size: 11px;
+  color: var(--text-faint);
+}
+
+.map-popup-actions {
+  display: flex;
+  gap: 12px;
+}
+
+/* Kontrol Leaflet mengikuti tema. */
+.leaflet-container a {
+  color: var(--accent);
+}
+
+.leaflet-bar {
+  border: 1px solid var(--border) !important;
+  box-shadow: none;
+}
+
+.leaflet-bar a {
+  background: var(--panel, #141416);
+  color: var(--text);
+  border-bottom-color: var(--border);
+}
+
+.leaflet-bar a:hover {
+  background: var(--bg, #101012);
+  color: var(--text);
+}
+
+.leaflet-control-attribution {
+  background: rgba(0, 0, 0, 0.55);
+  color: #999;
+  font-size: 10px;
+}
+
+.leaflet-control-attribution a {
+  color: #8ab4d8;
+}
+
+/* Tile mengikuti tema via varian ESRI Canvas (Dark/Light Gray) — lihat MapView.jsx.
+   (Tile OSM diblokir kebijakan usage; CARTO CDN kirim placeholder statis.) */
+
 /* ================= RESPONSIVE ================= */
 
 @media (max-width: 1200px) {
   .stats-row {
     grid-template-columns: repeat(3, 1fr);
+  }
+  .map-layout {
+    grid-template-columns: 1fr;
+  }
+  .map-side {
+    max-height: none;
+    min-height: 0;
   }
   .dash-main {
     grid-template-columns: 1fr;

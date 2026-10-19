@@ -29,7 +29,7 @@ export default function About() {
             <div className="about-rows">
               <div className="about-row">
                 <span className="about-k">{t('about.version')}</span>
-                <span className="about-v">0.1.0</span>
+                <span className="about-v">{__APP_VERSION__}</span>
               </div>
               <div className="about-row">
                 <span className="about-k">URL</span>

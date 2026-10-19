@@ -1,7 +1,6 @@
 import { useLocation } from 'react-router-dom'
 
 const META = {
-  '/map': { title: 'MAP VIEW', desc: 'Full geographic event map. Arrives in Phase 6 — Intelligence Features.' },
   '/timeline': { title: 'TIMELINE', desc: 'Chronological news monitoring. Arrives in Phase 6 — Intelligence Features.' },
   '/analytics': { title: 'ANALYTICS', desc: 'Local data visualization dashboard. Arrives in Phase 6 — Intelligence Features.' },
   '/tools/ai': { title: 'AI SUMMARY', desc: 'AI-powered summaries & topic analysis. Arrives in Phase 7 — AI Layer.' },
