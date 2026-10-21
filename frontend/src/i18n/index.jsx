@@ -82,6 +82,8 @@ const STRINGS = {
       openMap: 'Open 2D Map',
       openEvents: 'Open Events',
       enrich: 'Enrich Unmapped',
+      fitToMapped: 'Fit to mapped',
+      resetView: 'Reset view',
       legend: 'Legend',
       unmapped: 'UNMAPPED EVENTS',
       setLocation: 'Set Location',

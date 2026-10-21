@@ -80,6 +80,9 @@ export default function Globe3D() {
         setLocForm({ lat: ev.latitude || '', lng: ev.longitude || '', name: ev.location_name || '' })
         try { globe.pointOfView({ lat: p.lat, lng: p.lng, altitude: 1.8 }, 1000) } catch {}
       })
+      .onGlobeClick(() => {
+        // klik kosong bisa fokus panel unmapped atau reset
+      })
       .width(containerRef.current.clientWidth)
       .height(containerRef.current.clientHeight)
     globeRef.current = globe
@@ -146,6 +149,20 @@ export default function Globe3D() {
           <p className="page-sub">{t('globe3d.sub')}</p>
         </div>
         <div className="page-actions">
+          <button className="btn" onClick={() => {
+            if (!globeRef.current) return
+            try { globeRef.current.pointOfView({ lat: 0, lng: 0, altitude: 2.5 }, 800) } catch {}
+          }}>{t('globe3d.resetView')}</button>
+          <button className="btn" onClick={() => {
+            if (!globeRef.current || events.length === 0) return
+            try {
+              const lats = events.map(e => Number(e.latitude))
+              const lngs = events.map(e => Number(e.longitude))
+              const lat = lats.reduce((a,b)=>a+b,0)/lats.length
+              const lng = lngs.reduce((a,b)=>a+b,0)/lngs.length
+              globeRef.current.pointOfView({ lat, lng, altitude: 1.6 }, 1000)
+            } catch {}
+          }}>{t('globe3d.fitToMapped')}</button>
           <button className="btn" onClick={doEnrich}>{t('globe3d.enrich')}</button>
           <Link className="btn" to="/map">{t('globe3d.openMap')}</Link>
           <Link className="btn" to="/events">{t('globe3d.openEvents')}</Link>
