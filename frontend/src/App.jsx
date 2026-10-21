@@ -17,6 +17,7 @@ import Categories from './pages/Categories'
 import Timeline from './pages/Timeline'
 import Analytics from './pages/Analytics'
 import MapView from './pages/MapView'
+import Globe3D from './pages/Globe3D'
 import Settings from './pages/Settings'
 import About from './pages/About'
 import Export from './pages/Export'
@@ -53,6 +54,7 @@ export default function App() {
               <Route path="/bookmarks" element={<Bookmarks />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/map" element={<MapView />} />
+              <Route path="/globe" element={<Globe3D />} />
               <Route path="/timeline" element={<Timeline />} />
               <Route path="/analytics" element={<Analytics />} />
               <Route path="/categories" element={<Categories />} />

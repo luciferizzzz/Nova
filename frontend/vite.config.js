@@ -19,6 +19,7 @@ export default defineConfig({
     host: 'localhost'
   },
   build: {
-    outDir: 'dist'
+    outDir: 'dist',
+    chunkSizeWarningLimit: 4096
   }
 })
