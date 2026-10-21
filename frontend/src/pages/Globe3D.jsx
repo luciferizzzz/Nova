@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import Globe from 'globe.gl'
 import { GlobeIcon } from '../components/icons'
 import { useI18n } from '../i18n'
 import { getEvents, enrichEvents } from '../services/api'
+import { categoryClass } from '../utils/format'
 
 async function setEventLocation(id, { latitude, longitude, name }) {
   return fetch(`/api/events/${id}/location`, {
@@ -16,19 +17,9 @@ async function setEventLocation(id, { latitude, longitude, name }) {
   })
 }
 
-const CAT_COLORS = {
-  World: '#7aa2f7',
-  Technology: '#9ece6a',
-  Business: '#e0af68',
-  Science: '#bb9af7',
-  Local: '#f7768e',
-  Indonesia: '#f7768e',
-  Politics: '#f7768e',
-  Economy: '#e0af68',
-  Disaster: '#ff9e64',
-  Conflict: '#ff6b6b'
-}
-
+// Warna kategori bukan hardcode — diambil dari token CSS --cat-* lewat
+// categoryClass() (utils/format), sumber kebenaran yang sama dengan badge/legend/map.
+// globe.gl melukis ke canvas WebGL jadi nilainya harus dibaca lewat getComputedStyle.
 export default function Globe3D() {
   const { t } = useI18n()
   const navigate = useNavigate()
@@ -41,11 +32,38 @@ export default function Globe3D() {
   const [activeCats, setActiveCats] = useState(new Set())
   const [selected, setSelected] = useState(null)
   const [locForm, setLocForm] = useState({ lat: '', lng: '', name: '' })
+  // Ref data untuk handler globe.gl — callback dijadikan sekali saat init,
+  // kalau membaca state langsung ia selalu menangkap nilai awal ([])
+  // sehingga klik marker tidak pernah menemukan event. Pola sama dengan
+  // eventsRef di MapView.
+  const eventsRef = useRef([])
+  // Nomor urut yang naik tiap data-theme/data-accent berubah — dipakai agar
+  // warna marker globe ikut berganti mengikuti tema (token --cat-* berbeda
+  // antara dark dan light).
+  const [themeTick, setThemeTick] = useState(0)
+
+  useEffect(() => {
+    const root = document.documentElement
+    const obs = new MutationObserver(() => setThemeTick((k) => k + 1))
+    obs.observe(root, { attributes: true, attributeFilter: ['data-theme', 'data-accent'] })
+    return () => obs.disconnect()
+  }, [])
+
+  // Peta warna kategori dari token --cat-*. Dihitung ulang saat data atau tema berubah.
+  const catColors = useMemo(() => {
+    const cs = getComputedStyle(document.documentElement)
+    const out = {}
+    for (const c of new Set(allEvents.map((e) => e.category).filter(Boolean))) {
+      out[c] = cs.getPropertyValue(`--${categoryClass(c)}`).trim() || '#9b9b9b'
+    }
+    return out
+  }, [allEvents, themeTick])
 
   const load = () => {
     getEvents({ limit: 200 })
       .then((res) => {
         const list = res?.events || []
+        eventsRef.current = list
         setAllEvents(list)
         const mapped = list.filter((e) => e.latitude != null && e.longitude != null)
         const unmap = list.filter((e) => e.latitude == null || e.longitude == null)
@@ -62,7 +80,7 @@ export default function Globe3D() {
   useEffect(() => { load() }, [])
 
   useEffect(() => {
-    if (!containerRef.current || globeRef.current) return
+    if (!containerRef.current || globeRef.current) return undefined
     const globe = Globe()(containerRef.current)
       .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
       .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
@@ -74,7 +92,8 @@ export default function Globe3D() {
       .pointRadius(0.4)
       .pointsData([])
       .onPointClick((p) => {
-        const ev = allEvents.find((e) => e.id === p.id)
+        // Baca dari ref, bukan state — efek ini cuma berjalan sekali.
+        const ev = eventsRef.current.find((e) => e.id === p.id)
         if (!ev) return
         setSelected(ev)
         setLocForm({ lat: ev.latitude || '', lng: ev.longitude || '', name: ev.location_name || '' })
@@ -93,8 +112,18 @@ export default function Globe3D() {
       }
     }
     window.addEventListener('resize', resize)
-    return () => window.removeEventListener('resize', resize)
-  }, [allEvents])
+    return () => {
+      window.removeEventListener('resize', resize)
+      // Lepaskan WebGL + listener internal globe.gl dan kosongkan ref, seperti
+      // map.remove() di MapView. Tanpa ini React.StrictMode (mode dev) menjalankan
+      // efek dua kali: run kedua melihat globeRef terisi lalu keluar lebih awal,
+      // sehingga listener resize tidak pernah dipasang ulang.
+      if (globeRef.current) {
+        if (typeof globeRef.current._destructor === 'function') globeRef.current._destructor()
+        globeRef.current = null
+      }
+    }
+  }, [])
 
   useEffect(() => {
     if (!globeRef.current) return
@@ -108,9 +137,9 @@ export default function Globe3D() {
     }))
     globeRef.current
       .pointsData(data)
-      .pointColor((d) => CAT_COLORS[d.category] || '#9b9b9b')
+      .pointColor((d) => catColors[d.category] || '#9b9b9b')
       .pointLabel((d) => `<div style="background:rgba(0,0,0,0.85);padding:4px 6px;border-radius:4px;font-size:12px;max-width:260px;">${d.label}</div>`)
-  }, [events, activeCats])
+  }, [events, activeCats, catColors])
 
   const categories = Array.from(new Set(events.map((e) => e.category).filter(Boolean))).sort()
   const toggleCat = (c) => {
@@ -143,17 +172,15 @@ export default function Globe3D() {
     <div className="page globe3d-page">
       <div className="page-head">
         <div>
-          <h1 className="page-title">
-            <GlobeIcon size={18} /> {t('globe3d.title')}
-          </h1>
-          <p className="page-sub">{t('globe3d.sub')}</p>
+          <h2><GlobeIcon size={18} /> {t('globe3d.title')}</h2>
+          <span className="page-hint">{t('globe3d.sub')}</span>
         </div>
-        <div className="page-actions">
-          <button className="btn" onClick={() => {
+        <div className="page-head-actions">
+          <button type="button" className="reset-btn" onClick={() => {
             if (!globeRef.current) return
             try { globeRef.current.pointOfView({ lat: 0, lng: 0, altitude: 2.5 }, 800) } catch {}
           }}>{t('globe3d.resetView')}</button>
-          <button className="btn" onClick={() => {
+          <button type="button" className="reset-btn" onClick={() => {
             if (!globeRef.current || events.length === 0) return
             try {
               const lats = events.map(e => Number(e.latitude))
@@ -163,9 +190,9 @@ export default function Globe3D() {
               globeRef.current.pointOfView({ lat, lng, altitude: 1.6 }, 1000)
             } catch {}
           }}>{t('globe3d.fitToMapped')}</button>
-          <button className="btn" onClick={doEnrich}>{t('globe3d.enrich')}</button>
-          <Link className="btn" to="/map">{t('globe3d.openMap')}</Link>
-          <Link className="btn" to="/events">{t('globe3d.openEvents')}</Link>
+          <button type="button" className="apply-btn" onClick={doEnrich}>{t('globe3d.enrich')}</button>
+          <Link className="btn-link" to="/map">{t('globe3d.openMap')}</Link>
+          <Link className="btn-link" to="/events">{t('globe3d.openEvents')}</Link>
         </div>
       </div>
 
@@ -178,7 +205,7 @@ export default function Globe3D() {
             <div className="globe3d-legend">
               {categories.map((c) => (
                 <button key={c} className={`globe3d-legend-item ${activeCats.has(c) ? 'active' : ''}`} onClick={() => toggleCat(c)}>
-                  <span className="globe3d-dot" style={{ background: CAT_COLORS[c] || '#9b9b9b' }} />
+                  <span className={`globe3d-dot ${categoryClass(c)}`} />
                   <span>{c}</span>
                   <span className="globe3d-count">{events.filter((e) => e.category === c).length}</span>
                 </button>
@@ -228,9 +255,9 @@ export default function Globe3D() {
                 <input value={locForm.name} onChange={(e) => setLocForm({ ...locForm, name: e.target.value })} />
               </div>
               <div className="modal-actions">
-                <button className="btn" onClick={() => setSelected(null)}>{t('common.cancel')}</button>
-                <button className="btn btn-primary" onClick={() => doSetLocation(selected)}>{t('common.save')}</button>
-                <button className="btn" onClick={() => navigate(`/events`)}>{t('globe3d.openInEvents')}</button>
+                <button type="button" className="btn-secondary" onClick={() => setSelected(null)}>{t('common.cancel')}</button>
+                <button type="button" className="btn-primary" onClick={() => doSetLocation(selected)}>{t('common.save')}</button>
+                <button type="button" className="btn-secondary" onClick={() => navigate(`/events`)}>{t('globe3d.openInEvents')}</button>
               </div>
             </div>
           </div>
