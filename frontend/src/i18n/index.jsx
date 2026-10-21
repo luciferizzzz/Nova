@@ -78,13 +78,15 @@ const STRINGS = {
     },
     globe3d: {
       title: '3D GLOBE',
-      sub: 'Phase 9 — Milestone C (spike)',
+      sub: 'Phase 9 — Milestone C',
       openMap: 'Open 2D Map',
       openEvents: 'Open Events',
-      scaffoldTitle: '3D Globe scaffolding',
-      scaffoldHint: 'Library spike: CesiumJS vs globe.gl vs MapLibre GL JS. Using events with coordinates from /api/events.',
-      scaffoldTodo: 'Todo: pick library, render Earth, place event markers, fly-to, category colors',
-      mappedCount: '{n} / {total} events with coordinates'
+      enrich: 'Enrich Unmapped',
+      legend: 'Legend',
+      unmapped: 'UNMAPPED EVENTS',
+      setLocation: 'Set Location',
+      openInEvents: 'Open in Events',
+      mappedCount: '{n} / {total} visible on globe'
     },
     'globe.title': '3D GLOBE',
     'globe.sub': 'Phase 9 — Milestone C',
