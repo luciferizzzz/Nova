@@ -29,6 +29,7 @@ export default function Sidebar() {
         { to: '/topics', key: 'nav.topics' },
         { to: '/sources', key: 'nav.sources' },
         { to: '/map', key: 'nav.mapView' },
+        { to: '/globe', key: 'nav.globe3d' },
         { to: '/timeline', key: 'nav.timeline' },
         { to: '/analytics', key: 'nav.analytics' }
       ]

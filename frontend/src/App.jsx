@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './context/AuthContext'
 import { I18nProvider } from './i18n'
 import MainLayout from './layouts/MainLayout'
 import LoginPage from './pages/LoginPage'
+import { lazy, Suspense } from 'react'
 import Dashboard from './pages/Dashboard'
 import AllNews from './pages/AllNews'
 import ArticleDetail from './pages/ArticleDetail'
@@ -17,6 +18,7 @@ import Categories from './pages/Categories'
 import Timeline from './pages/Timeline'
 import Analytics from './pages/Analytics'
 import MapView from './pages/MapView'
+const Globe3D = lazy(() => import('./pages/Globe3D'))
 import Settings from './pages/Settings'
 import About from './pages/About'
 import Export from './pages/Export'
@@ -53,6 +55,7 @@ export default function App() {
               <Route path="/bookmarks" element={<Bookmarks />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/map" element={<MapView />} />
+              <Route path="/globe" element={<Suspense fallback={<Loading text="Loading..." />}><Globe3D /></Suspense>} />
               <Route path="/timeline" element={<Timeline />} />
               <Route path="/analytics" element={<Analytics />} />
               <Route path="/categories" element={<Categories />} />
