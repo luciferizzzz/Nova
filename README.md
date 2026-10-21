@@ -193,7 +193,7 @@ Nova/
 - [x] **Fase 7** AI Layer (AI summarization, watchlist intelligence, topic analysis) — rilis v1.3.0
 - [x] **Appearance** Color Themes (10 accent × light/dark) — rilis v1.4.0
 - [x] **Fase 8** Analytics & Insights (dashboard, categories, also-reported-by, trending velocity) — rilis v1.5.0
-- [ ] **Fase 9** Geo Mapping — Milestone **A location enrichment ✅ + B map view 2D Leaflet ✅ → rilis v1.6.0 (2026-10-19)**; Milestone C 3D Globe menyusul (sumber koordinat: hybrid gazetteer offline + manual; tile ESRI Canvas)
+- [x] **Fase 9** Geo Mapping — Milestone **A location enrichment ✅ + B map view 2D Leaflet ✅ → rilis v1.6.0 (2026-10-19)**; Milestone **C 3D Globe globe.gl ✅ → rilis v1.7.0 (2026-10-21)** (sumber koordinat: hybrid gazetteer offline + manual; tile ESRI Canvas)
 
 ## Lisensi
 
