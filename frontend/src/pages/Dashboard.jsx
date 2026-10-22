@@ -1,16 +1,20 @@
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import StatCard from '../components/StatCard'
 import NewsTabs from '../components/NewsTabs'
 import QuickFilters from '../components/QuickFilters'
 import NewsCard from '../components/NewsCard'
 import TopStories from '../components/TopStories'
-import GlobePanel from '../components/GlobePanel'
 import TrendingPanel from '../components/TrendingPanel'
 import { FeedSkeleton, default as Loading } from '../components/Loading'
 import useFeed from '../hooks/useFeed'
 import { getStats, getSources, getBerita } from '../services/api'
 import { timeAgo, number, lastHoursISO } from '../utils/format'
 import { useI18n } from '../i18n'
+
+// Panel globe di dashboard me-render globe.gl sungguhan, jadi komponennya
+// lazy-load: globe.gl + three (~1,9 MB) tetap di chunk terpisah, bukan di
+// main bundle.
+const GlobePanel = lazy(() => import('../components/GlobePanel'))
 
 const TAB_PARAMS = {
   latest: {},
@@ -76,7 +80,9 @@ export default function Dashboard() {
 
       <section className="dash-main">
         <div className="dash-center">
-          <GlobePanel />
+          <Suspense fallback={<div className="panel globe-panel"><div className="globe-placeholder"><div className="globe-title">{t('globe.title')}</div><div className="globe-sub">{t('globe.sub')}</div></div></div>}>
+            <GlobePanel />
+          </Suspense>
           <NewsTabs active={tab} onChange={setTab} />
           <QuickFilters filters={filters} onChange={setFilters} sources={sources} />
           {tab === 'trending' ? (
