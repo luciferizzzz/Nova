@@ -992,6 +992,90 @@ button {
   color: var(--text-faint);
 }
 
+/* Panel globe mini di dashboard — globe.gl sungguhan, bukan placeholder.
+   Kotak .globe-panel jadi wadah Relative, overlay teksnya melayang di atas
+   canvas dengan pointer-events:none supaya tidak menghalangi drag/zoom globe
+   (hanya tombolnya yang dikembalikan ke auto). */
+.globe-panel {
+  position: relative;
+  overflow: hidden;
+}
+
+.globe-mini-canvas {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+}
+
+.globe-mini-canvas canvas {
+  display: block;
+}
+
+.globe-mini-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 12px 14px;
+}
+
+.globe-mini-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.globe-mini-top {
+  justify-content: space-between;
+}
+
+.globe-mini-bottom {
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.globe-mini-title {
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: var(--text-dim);
+}
+
+.globe-mini-open {
+  pointer-events: auto;
+}
+
+.globe-mini-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  min-width: 0;
+}
+
+.globe-mini-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.globe-mini-count {
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--text-faint);
+  white-space: nowrap;
+}
+
+.globe-mini-error {
+  font-size: 10px;
+  color: var(--danger, #c44536);
+}
+
 /* ================= TABS ================= */
 
 .news-tabs {
