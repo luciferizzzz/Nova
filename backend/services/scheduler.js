@@ -1,6 +1,7 @@
 const cron = require('node-cron')
 const { fetchAllSources } = require('./rssFetcher')
 const { detectEvents } = require('./eventEngine')
+const { notifyFetch } = require('./liveUpdates')
 
 let task = null
 
@@ -18,9 +19,12 @@ function startScheduler(db) {
       console.log('')
       console.log(`[Scheduler] Fetching news at ${new Date().toISOString()}`)
       try {
-        await fetchAllSources(db)
+        const fetched = await fetchAllSources(db)
         const result = detectEvents(db)
         console.log(`[Scheduler] Events rebuilt: ${result.events} events from ${result.articles} recent articles`)
+        // Tell every open tab what actually arrived — including per-source failures,
+        // something the browser could never infer by polling counts alone.
+        notifyFetch(fetched, { events: result.events, source: 'scheduler' })
       } catch (err) {
         console.error(`[Scheduler] Fetch error: ${err.message}`)
       }

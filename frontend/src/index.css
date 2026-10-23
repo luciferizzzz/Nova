@@ -843,6 +843,49 @@ button {
   border-color: var(--err);
 }
 
+/* LIVE UPDATES (SSE) — badge appears only when new articles arrived.
+   Never auto-refreshes: clicking it acknowledges + reloads. */
+.live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 30px;
+  padding: 0 11px;
+  border: 1px solid var(--accent-strong);
+  border-radius: 6px;
+  background: rgba(var(--accent-rgb), 0.14);
+  color: var(--accent-bright);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  cursor: pointer;
+  animation: live-badge-in 0.18s ease-out;
+}
+
+.live-badge:hover {
+  background: rgba(var(--accent-rgb), 0.24);
+  box-shadow: var(--glow);
+}
+
+.live-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-bright);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes live-badge-in {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 /* ================= PANELS ================= */
 
 .panel {

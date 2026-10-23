@@ -1,5 +1,6 @@
 const express = require('express')
 const { fetchAllSources } = require('../services/rssFetcher')
+const { notifyFetch } = require('../services/liveUpdates')
 
 const router = express.Router()
 
@@ -55,6 +56,7 @@ router.post('/', (req, res) => {
 router.post('/refresh', async (req, res) => {
   try {
     const result = await fetchAllSources(req.db)
+    notifyFetch(result, { source: 'manual' })
     res.json({ success: true, ...result })
   } catch (err) {
     res.status(500).json({ error: err.message })

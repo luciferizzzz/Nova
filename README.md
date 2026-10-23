@@ -51,6 +51,12 @@ Sistem agregasi berita **local-first** yang berjalan di laptop/PC Anda. NOVA men
 - **Categories**: halaman `/categories` mengagregasi berita per kategori — jumlah artikel + porsi, keragaman sumber & negara, tren 7 hari, sparkline harian, sumber teratas, dan headline terbaru (read-only, memakai `berita` yang sudah ada)
 - **Analytics dashboard**: halaman `/analytics` merangkum ketiga insight di atas dalam satu tampilan read-only — cakupan corroboration lintas sumber (dengan bar + event paling terverifikasi), event velocity teratas, dan distribusi artikel per kategori; semuanya memakai data yang sudah ada
 
+### Live Updates — SSE (notifikasi berita baru)
+- **Server-Sent Events** (`/api/live/stream`) — scheduler mengirim hasil `fetchAllSources()` apa adanya: jumlah artikel baru **dan** nama sumber yang gagal, tanpa polling tambahan
+- Badge `↑ N` di top header + penanda `● (N)` di judul tab browser — tetap tampil sampai diklik (acknowledge), jadi tetap terlihat saat tab di belakang
+- **Tidak pernah auto-refresh feed**: klik badge = acknowledge + muat data terbaru; bar "N berita baru — MUAT SEKARANG" di dashboard tetap bekerja per filter
+- Heartbeat 25 detik, reconnect backoff otomatis, berhenti reconnect saat sesi habis (401); tanpa dependency baru
+
 ## Persyaratan
 
 - **Node.js** ≥ 22.5 (menggunakan modul eksperimental `node:sqlite`)
@@ -116,6 +122,8 @@ Semua endpoint di bawah `/api` memerlukan cookie sesi (login via `POST /api/auth
 |---|---|---|
 | `GET` | `/api/health` | Status server |
 | `GET` | `/api/status` | Status lengkap (server, database, RSS, scheduler) |
+| `GET` | `/api/live/stream` | Stream SSE notifikasi berita baru (`event: ready`, `event: update` — jumlah artikel + sumber gagal) |
+| `GET` | `/api/live/status` | Jumlah klien SSE aktif + payload update terakhir |
 | `GET` | `/api/auth/status` | Status autentikasi |
 | `POST` | `/api/auth/login` | Login (`{ password }`) |
 | `POST` | `/api/auth/logout` | Logout |
