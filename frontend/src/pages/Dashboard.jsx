@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import StatCard from '../components/StatCard'
 import NewsTabs from '../components/NewsTabs'
 import QuickFilters from '../components/QuickFilters'
@@ -10,6 +10,7 @@ import useFeed from '../hooks/useFeed'
 import { getStats, getSources, getBerita } from '../services/api'
 import { timeAgo, number, lastHoursISO } from '../utils/format'
 import { useI18n } from '../i18n'
+import { useLiveUpdates } from '../context/LiveUpdatesContext'
 
 // Panel globe di dashboard me-render globe.gl sungguhan, jadi komponennya
 // lazy-load: globe.gl + three (~1,9 MB) tetap di chunk terpisah, bukan di
@@ -36,6 +37,7 @@ function buildParams(tab, filters) {
 
 export default function Dashboard() {
   const { t } = useI18n()
+  const live = useLiveUpdates()
   const [stats, setStats] = useState(null)
   const [sources, setSources] = useState([])
   const [stories, setStories] = useState([])
@@ -44,6 +46,7 @@ export default function Dashboard() {
 
   const params = buildParams(tab, filters)
   const feed = useFeed(params, { poll: true })
+  const liveRefreshRef = useRef(live.refreshToken)
 
   useEffect(() => {
     let active = true
@@ -59,6 +62,18 @@ export default function Dashboard() {
       clearInterval(id)
     }
   }, [])
+
+  // The header badge asks for an explicit reload after the user acknowledges it.
+  // Feed content still never changes on its own — this only runs on click.
+  useEffect(() => {
+    if (live.refreshToken === liveRefreshRef.current) return
+    liveRefreshRef.current = live.refreshToken
+    feed.refresh()
+    getStats().then(setStats).catch(() => {})
+    getSources().then(setSources).catch(() => {})
+    getBerita({ limit: 4 }).then(setStories).catch(() => {})
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [live.refreshToken])
 
   const statCards = stats
     ? [

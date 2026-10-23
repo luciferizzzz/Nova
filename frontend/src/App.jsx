@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import { LiveUpdatesProvider } from './context/LiveUpdatesContext'
 import { I18nProvider } from './i18n'
 import MainLayout from './layouts/MainLayout'
 import LoginPage from './pages/LoginPage'
@@ -36,42 +37,44 @@ function RequireAuth({ children }) {
 export default function App() {
   return (
     <AuthProvider>
-      <I18nProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route
-              element={
-                <RequireAuth>
-                  <MainLayout />
-                </RequireAuth>
-              }
-            >
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/news" element={<AllNews />} />
-              <Route path="/berita/:slug" element={<ArticleDetail />} />
-              <Route path="/search" element={<Search />} />
-              <Route path="/sources" element={<Sources />} />
-              <Route path="/bookmarks" element={<Bookmarks />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/map" element={<MapView />} />
-              <Route path="/globe" element={<Suspense fallback={<Loading text="Loading..." />}><Globe3D /></Suspense>} />
-              <Route path="/timeline" element={<Timeline />} />
-              <Route path="/analytics" element={<Analytics />} />
-              <Route path="/categories" element={<Categories />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/tools/ai" element={<Placeholder />} />
-              <Route path="/tools/searches" element={<SavedSearches />} />
-              <Route path="/tools/watchlist" element={<Watchlist />} />
-              <Route path="/events" element={<Events />} />
-              <Route path="/topics" element={<Topics />} />
-              <Route path="/tools/export" element={<Export />} />
-              <Route path="/tools/import" element={<Import />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Route>
-          </Routes>
-        </BrowserRouter>
-      </I18nProvider>
+      <LiveUpdatesProvider>
+        <I18nProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/login" element={<LoginPage />} />
+              <Route
+                element={
+                  <RequireAuth>
+                    <MainLayout />
+                  </RequireAuth>
+                }
+              >
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/news" element={<AllNews />} />
+                <Route path="/berita/:slug" element={<ArticleDetail />} />
+                <Route path="/search" element={<Search />} />
+                <Route path="/sources" element={<Sources />} />
+                <Route path="/bookmarks" element={<Bookmarks />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/map" element={<MapView />} />
+                <Route path="/globe" element={<Suspense fallback={<Loading text="Loading..." />}><Globe3D /></Suspense>} />
+                <Route path="/timeline" element={<Timeline />} />
+                <Route path="/analytics" element={<Analytics />} />
+                <Route path="/categories" element={<Categories />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/tools/ai" element={<Placeholder />} />
+                <Route path="/tools/searches" element={<SavedSearches />} />
+                <Route path="/tools/watchlist" element={<Watchlist />} />
+                <Route path="/events" element={<Events />} />
+                <Route path="/topics" element={<Topics />} />
+                <Route path="/tools/export" element={<Export />} />
+                <Route path="/tools/import" element={<Import />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Route>
+            </Routes>
+          </BrowserRouter>
+        </I18nProvider>
+      </LiveUpdatesProvider>
     </AuthProvider>
   )
 }

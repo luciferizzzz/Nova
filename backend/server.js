@@ -21,11 +21,13 @@ const trendingRoutes = require('./routes/trending')
 const categoriesRoutes = require('./routes/categories')
 const analyticsRoutes = require('./routes/analytics')
 const aiRoutes = require('./routes/ai')
+const liveRoutes = require('./routes/live')
 const dataRoutes = require('./routes/data')
 const { requireAuth } = require('./middleware/auth')
 const { ensureDefaultSources, fetchAllSources } = require('./services/rssFetcher')
 const { detectEvents } = require('./services/eventEngine')
 const { startScheduler, stopScheduler } = require('./services/scheduler')
+const { notifyFetch } = require('./services/liveUpdates')
 
 function createServer() {
   const db = initDatabase()
@@ -75,6 +77,7 @@ function createServer() {
   app.use('/api/categories', requireAuth, categoriesRoutes)
   app.use('/api/analytics', requireAuth, analyticsRoutes)
   app.use('/api/ai', requireAuth, aiRoutes)
+  app.use('/api/live', requireAuth, liveRoutes)
   app.use('/api', requireAuth, dataRoutes)
 
   app.get('/api/status', requireAuth, (req, res) => {
@@ -136,8 +139,11 @@ function startServer() {
     console.log('')
   })
 
+  let initialFetch = null
+
   fetchAllSources(db)
     .then((result) => {
+      initialFetch = result
       app.locals.novaStatus.rssEngine = 'ONLINE'
       console.log('')
       console.log(`News engine ready: ${result.total} new articles from ${result.ok} sources (${result.failed} failed)`)
@@ -147,6 +153,8 @@ function startServer() {
       if (ev) {
         console.log(`Event engine ready: ${ev.events} events from ${ev.articles} recent articles`)
       }
+      // Seed the live status so a tab opened later can show the last refresh time.
+      notifyFetch(initialFetch || {}, { events: ev ? ev.events : null, source: 'startup' })
     })
     .catch((err) => {
       app.locals.novaStatus.rssEngine = 'ERROR'
