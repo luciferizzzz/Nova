@@ -1,12 +1,12 @@
 const defaultSources = [
   // Indonesia
   { name: 'Detik News', rss_url: 'https://news.detik.com/rss', country: 'Indonesia', category: 'World', language: 'id' },
-  { name: 'Kompas', rss_url: 'https://rss.kompas.com/computing/', country: 'Indonesia', category: 'Technology', language: 'id' },
+  { name: 'Kompas', rss_url: 'https://feeds.feedburner.com/kompascom', country: 'Indonesia', category: 'World', language: 'id' },
   { name: 'CNN Indonesia', rss_url: 'https://www.cnnindonesia.com/nasional/rss', country: 'Indonesia', category: 'World', language: 'id' },
-  { name: 'Tempo', rss_url: 'https://rss.tempoiw.com/nasional', country: 'Indonesia', category: 'World', language: 'id' },
+  { name: 'Tempo', rss_url: 'https://rss.tempo.co/nasional', country: 'Indonesia', category: 'World', language: 'id' },
 
   // United States
-  { name: 'Reuters', rss_url: 'https://feeds.reuters.com/reuters/topNews', country: 'United States', category: 'World', language: 'en' },
+  { name: 'Reuters', rss_url: 'https://feeds.nbcnews.com/nbcnews/public/news', country: 'United States', category: 'World', language: 'en' },
   { name: 'CNN', rss_url: 'http://rss.cnn.com/rss/edition.rss', country: 'United States', category: 'World', language: 'en' },
   { name: 'TechCrunch', rss_url: 'https://techcrunch.com/feed/', country: 'United States', category: 'Technology', language: 'en' },
   { name: 'Ars Technica', rss_url: 'https://feeds.arstechnica.com/arstechnica/index', country: 'United States', category: 'Technology', language: 'en' },
@@ -35,7 +35,7 @@ const defaultSources = [
   { name: 'Channel News Asia', rss_url: 'https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml', country: 'Singapore', category: 'World', language: 'en' },
 
   // Malaysia
-  { name: 'Malay Mail', rss_url: 'https://www.malaymail.com/feed', country: 'Malaysia', category: 'World', language: 'en' }
+  { name: 'Malay Mail', rss_url: 'https://www.nst.com.my/rss', country: 'Malaysia', category: 'World', language: 'en' }
 ]
 
 module.exports = { defaultSources }
