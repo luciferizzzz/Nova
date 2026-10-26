@@ -166,6 +166,8 @@ export default function Sources() {
               <th>Category</th>
               <th>Status</th>
               <th>Last Fetch</th>
+              <th>Last Checked</th>
+              <th>Health</th>
               <th>Articles</th>
               <th className="right">Actions</th>
             </tr>
@@ -185,6 +187,16 @@ export default function Sources() {
                   </button>
                 </td>
                 <td>{s.last_fetch ? formatDate(s.last_fetch) : '—'}</td>
+                <td>{s.last_checked_at ? formatDate(s.last_checked_at) : (s.last_fetch ? formatDate(s.last_fetch) : '—')}</td>
+                <td>
+                  {s.status === 'error' ? (
+                    <span className="health-badge err" title={s.last_error || 'Error fetching RSS'}>
+                      ERR{(s.consecutive_failures || 0) > 0 ? ` x${s.consecutive_failures}` : ''}
+                    </span>
+                  ) : (
+                    <span className="health-badge ok">OK</span>
+                  )}
+                </td>
                 <td>{number(s.article_count)}</td>
                 <td className="right">
                   <button className="icon-btn" title="Edit" onClick={() => startEdit(s)}>
