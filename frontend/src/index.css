@@ -2138,6 +2138,62 @@ button {
   border-color: rgba(220, 53, 69, 0.4);
 }
 
+.source-filter {
+  padding: 12px 16px;
+}
+
+.filter-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  padding: 6px 12px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  transition: all 0.2s;
+}
+
+.filter-btn:hover {
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+
+.filter-btn.active {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+.error-row td {
+  padding: 0 16px 12px 16px;
+  background: rgba(220, 53, 69, 0.05);
+}
+
+.error-detail {
+  padding: 8px 12px;
+  background: var(--bg-2);
+  border: 1px solid rgba(220, 53, 69, 0.3);
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--text-dim);
+  word-break: break-word;
+}
+
+.error-detail strong {
+  color: var(--danger);
+}
+
+.error-count {
+  color: var(--text-faint);
+}
+
 .row-disabled {
   opacity: 0.45;
 }
