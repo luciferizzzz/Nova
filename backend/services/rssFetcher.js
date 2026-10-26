@@ -23,8 +23,16 @@ function ensureDefaultSources(db) {
   }
 }
 
-function markSourceStatus(db, sourceId, status) {
-  db.prepare('UPDATE sources SET status = ?, last_fetch = CURRENT_TIMESTAMP WHERE id = ?').run(status, sourceId)
+function markSourceStatus(db, sourceId, status, error = null) {
+  if (status === 'error') {
+    const row = db.prepare('SELECT COALESCE(consecutive_failures, 0) as f FROM sources WHERE id = ?').get(sourceId)
+    const failures = row ? row.f : 0
+    db.prepare('UPDATE sources SET status = ?, last_fetch = CURRENT_TIMESTAMP, last_checked_at = CURRENT_TIMESTAMP, last_error = ?, consecutive_failures = ? WHERE id = ?')
+      .run(status, error, failures + 1, sourceId)
+  } else {
+    db.prepare('UPDATE sources SET status = ?, last_fetch = CURRENT_TIMESTAMP, last_checked_at = CURRENT_TIMESTAMP, last_error = NULL, consecutive_failures = 0 WHERE id = ?')
+      .run(status, sourceId)
+  }
 }
 
 async function fetchSingleSource(db, source) {
@@ -33,7 +41,7 @@ async function fetchSingleSource(db, source) {
     try {
       feed = await parser.parseURL(source.rss_url)
     } catch (err) {
-      markSourceStatus(db, source.id, 'error')
+      markSourceStatus(db, source.id, 'error', err.message)
       return { inserted: 0, total: 0, error: err.message }
     }
 
@@ -74,7 +82,7 @@ async function fetchSingleSource(db, source) {
     markSourceStatus(db, source.id, 'active')
     return { inserted, total: items.length, skipped }
   } catch (err) {
-    markSourceStatus(db, source.id, 'error')
+    markSourceStatus(db, source.id, 'error', err.message)
     return { inserted: 0, total: 0, error: err.message }
   }
 }

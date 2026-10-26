@@ -13,6 +13,8 @@ export default function Sources() {
   const [refreshMsg, setRefreshMsg] = useState('')
   const [editing, setEditing] = useState(null)
   const [form, setForm] = useState(EMPTY)
+  const [filter, setFilter] = useState('all')
+  const [expanded, setExpanded] = useState(new Set())
 
   const load = useCallback(() => {
     getSources()
@@ -79,6 +81,22 @@ export default function Sources() {
     }
   }
 
+  const toggleExpand = (id) => {
+    setExpanded((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  const filtered = sources.filter((s) => {
+    if (filter === 'healthy') return s.enabled && s.status === 'active'
+    if (filter === 'failing') return s.enabled && s.status === 'error'
+    if (filter === 'disabled') return !s.enabled
+    return true
+  })
+
   if (loading) return <Loading />
   if (error && sources.length === 0) {
     return <div className="empty panel">{error}</div>
@@ -96,6 +114,15 @@ export default function Sources() {
           <button className="btn-primary" onClick={startAdd}>
             <PlusIcon /> ADD SOURCE
           </button>
+        </div>
+      </div>
+
+      <div className="panel source-filter">
+        <div className="filter-group">
+          <button className={`filter-btn ${filter === 'all' ? 'active' : ''}`} onClick={() => setFilter('all')}>All ({sources.length})</button>
+          <button className={`filter-btn ${filter === 'healthy' ? 'active' : ''}`} onClick={() => setFilter('healthy')}>Healthy ({sources.filter(s => s.enabled && s.status === 'active').length})</button>
+          <button className={`filter-btn ${filter === 'failing' ? 'active' : ''}`} onClick={() => setFilter('failing')}>Failing ({sources.filter(s => s.enabled && s.status === 'error').length})</button>
+          <button className={`filter-btn ${filter === 'disabled' ? 'active' : ''}`} onClick={() => setFilter('disabled')}>Disabled ({sources.filter(s => !s.enabled).length})</button>
         </div>
       </div>
 
@@ -166,35 +193,61 @@ export default function Sources() {
               <th>Category</th>
               <th>Status</th>
               <th>Last Fetch</th>
+              <th>Last Checked</th>
+              <th>Health</th>
               <th>Articles</th>
               <th className="right">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {sources.map((s) => (
-              <tr key={s.id} className={s.enabled ? '' : 'row-disabled'}>
-                <td>
-                  <div className="src-name">{s.name}</div>
-                  <div className="src-url">{s.rss_url}</div>
-                </td>
-                <td>{s.country}</td>
-                <td>{s.category}</td>
-                <td>
-                  <button className={`status-chip ${s.status === 'active' ? 'ok' : 'err'}`} onClick={() => toggleEnabled(s)} title="Toggle enabled">
-                    {s.enabled ? s.status : 'disabled'}
-                  </button>
-                </td>
-                <td>{s.last_fetch ? formatDate(s.last_fetch) : '—'}</td>
-                <td>{number(s.article_count)}</td>
-                <td className="right">
-                  <button className="icon-btn" title="Edit" onClick={() => startEdit(s)}>
-                    ⋯
-                  </button>
-                  <button className="icon-btn danger" title="Delete" onClick={() => remove(s)}>
-                    <TrashIcon />
-                  </button>
-                </td>
-              </tr>
+            {filtered.map((s) => (
+              <>
+                <tr key={s.id} className={s.enabled ? '' : 'row-disabled'}>
+                  <td>
+                    <div className="src-name">{s.name}</div>
+                    <div className="src-url">{s.rss_url}</div>
+                  </td>
+                  <td>{s.country}</td>
+                  <td>{s.category}</td>
+                  <td>
+                    <button className={`status-chip ${s.status === 'active' ? 'ok' : 'err'}`} onClick={() => toggleEnabled(s)} title="Toggle enabled">
+                      {s.enabled ? s.status : 'disabled'}
+                    </button>
+                  </td>
+                  <td>{s.last_fetch ? formatDate(s.last_fetch) : '—'}</td>
+                  <td>{s.last_checked_at ? formatDate(s.last_checked_at) : (s.last_fetch ? formatDate(s.last_fetch) : '—')}</td>
+                  <td>
+                    {s.status === 'error' ? (
+                      <span className="health-badge err" onClick={() => toggleExpand(s.id)} title="Click to view error details" style={{ cursor: 'pointer' }}>
+                        ERR{(s.consecutive_failures || 0) > 0 ? ` x${s.consecutive_failures}` : ''}
+                      </span>
+                    ) : (
+                      <span className="health-badge ok">OK</span>
+                    )}
+                  </td>
+                  <td>{number(s.article_count)}</td>
+                  <td className="right">
+                    <button className="icon-btn" title="Edit" onClick={() => startEdit(s)}>
+                      ⋯
+                    </button>
+                    <button className="icon-btn danger" title="Delete" onClick={() => remove(s)}>
+                      <TrashIcon />
+                    </button>
+                  </td>
+                </tr>
+                {s.status === 'error' && s.last_error && expanded.has(s.id) && (
+                  <tr key={`${s.id}-error`} className="error-row">
+                    <td colSpan="10">
+                      <div className="error-detail">
+                        <strong>Last Error:</strong> {s.last_error}
+                        {(s.consecutive_failures || 0) > 0 && (
+                          <span className="error-count"> • Consecutive failures: {s.consecutive_failures}</span>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </>
             ))}
           </tbody>
         </table>

@@ -127,6 +127,11 @@ const ADDED_COLUMNS = {
     ['insight_provider', 'VARCHAR(50)'],
     ['insight_model', 'VARCHAR(100)'],
     ['insight_generated_at', 'DATETIME']
+  ],
+  sources: [
+    ['last_error', 'TEXT'],
+    ['consecutive_failures', 'INTEGER DEFAULT 0'],
+    ['last_checked_at', 'DATETIME']
   ]
 }
 
