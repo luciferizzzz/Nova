@@ -57,6 +57,11 @@ Sistem agregasi berita **local-first** yang berjalan di laptop/PC Anda. NOVA men
 - **Tidak pernah auto-refresh feed**: klik badge = acknowledge + muat data terbaru; bar "N berita baru — MUAT SEKARANG" di dashboard tetap bekerja per filter
 - Heartbeat 25 detik, reconnect backoff otomatis, berhenti reconnect saat sesi habis (401); tanpa dependency baru
 
+### Source Health Panel (v1.10.0)
+- Halaman `/sources` menampilkan kolom **LAST CHECKED** + **HEALTH** (`OK` / `ERR xN`); klik badge `ERR` untuk melihat **pesan error terakhir** + jumlah gagal berturut-turut
+- Filter berhitungan: **All / Healthy / Failing / Disabled**
+- Backend menyimpan `last_error`, `consecutive_failures`, `last_checked_at` (migrasi aditif) — penyebab sumber gagal tidak lagi hanya ada di log server
+
 ## Persyaratan
 
 - **Node.js** ≥ 22.5 (menggunakan modul eksperimental `node:sqlite`)
@@ -204,6 +209,7 @@ Nova/
 - [x] **Fase 9** Geo Mapping — Milestone **A location enrichment ✅ + B map view 2D Leaflet ✅ → rilis v1.6.0 (2026-10-19)**; Milestone **C 3D Globe globe.gl ✅ → rilis v1.7.0 (2026-10-21)** (sumber koordinat: hybrid gazetteer offline + manual; tile ESRI Canvas)
 - [x] **Dashboard 3D Globe** — panel GLOBE di dashboard jadi globe.gl nyata (drag/zoom, auto-rotate, klik marker → `/globe`), hook `useGlobe` dipakai bersama `/globe` — rilis v1.8.0 (2026-10-22)
 - [x] **Live Updates (SSE)** — notifikasi berita baru real-time: badge `↑ N` di top header + `● (N)` di judul tab, daftar sumber gagal dari scheduler, acknowledge-only (feed tidak pernah auto-refresh) — rilis v1.9.0 (2026-10-23)
+- [x] **Source Health Panel** — status kesehatan tiap sumber RSS di `/sources`: `OK` / `ERR xN`, last error + jumlah gagal berturut-turut, filter All/Healthy/Failing/Disabled — rilis v1.10.0 (2026-10-26)
 
 ## Lisensi
 
