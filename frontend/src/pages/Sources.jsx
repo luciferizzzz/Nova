@@ -3,10 +3,12 @@ import { addSource, deleteSource, getSources, refreshSources, updateSource } fro
 import { formatDate, number, COUNTRIES, CATEGORIES, LANGUAGES } from '../utils/format'
 import Loading from '../components/Loading'
 import { PlusIcon, RefreshIcon, TrashIcon } from '../components/icons'
+import { useI18n } from '../i18n'
 
 const EMPTY = { name: '', rss_url: '', country: 'Indonesia', language: 'id', category: 'World' }
 
 export default function Sources() {
+  const { t } = useI18n()
   const [sources, setSources] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -119,10 +121,10 @@ export default function Sources() {
 
       <div className="panel source-filter">
         <div className="filter-group">
-          <button className={`filter-btn ${filter === 'all' ? 'active' : ''}`} onClick={() => setFilter('all')}>All ({sources.length})</button>
-          <button className={`filter-btn ${filter === 'healthy' ? 'active' : ''}`} onClick={() => setFilter('healthy')}>Healthy ({sources.filter(s => s.enabled && s.status === 'active').length})</button>
-          <button className={`filter-btn ${filter === 'failing' ? 'active' : ''}`} onClick={() => setFilter('failing')}>Failing ({sources.filter(s => s.enabled && s.status === 'error').length})</button>
-          <button className={`filter-btn ${filter === 'disabled' ? 'active' : ''}`} onClick={() => setFilter('disabled')}>Disabled ({sources.filter(s => !s.enabled).length})</button>
+          <button className={`filter-btn ${filter === 'all' ? 'active' : ''}`} onClick={() => setFilter('all')}>{t('sources.all', 'All')} ({sources.length})</button>
+          <button className={`filter-btn ${filter === 'healthy' ? 'active' : ''}`} onClick={() => setFilter('healthy')}>{t('sources.healthy', 'Healthy')} ({sources.filter(s => s.enabled && s.status === 'active').length})</button>
+          <button className={`filter-btn ${filter === 'failing' ? 'active' : ''}`} onClick={() => setFilter('failing')}>{t('sources.failing', 'Failing')} ({sources.filter(s => s.enabled && s.status === 'error').length})</button>
+          <button className={`filter-btn ${filter === 'disabled' ? 'active' : ''}`} onClick={() => setFilter('disabled')}>{t('sources.disabled', 'Disabled')} ({sources.filter(s => !s.enabled).length})</button>
         </div>
       </div>
 
@@ -193,8 +195,8 @@ export default function Sources() {
               <th>Category</th>
               <th>Status</th>
               <th>Last Fetch</th>
-              <th>Last Checked</th>
-              <th>Health</th>
+              <th>{t('sources.lastChecked', 'Last Checked')}</th>
+              <th>{t('sources.health', 'Health')}</th>
               <th>Articles</th>
               <th className="right">Actions</th>
             </tr>
@@ -239,9 +241,9 @@ export default function Sources() {
                   <tr key={`${s.id}-error`} className="error-row">
                     <td colSpan="10">
                       <div className="error-detail">
-                        <strong>Last Error:</strong> {s.last_error}
+                        <strong>{t('sources.lastError', 'Last Error')}:</strong> {s.last_error}
                         {(s.consecutive_failures || 0) > 0 && (
-                          <span className="error-count"> • Consecutive failures: {s.consecutive_failures}</span>
+                          <span className="error-count"> • {t('sources.consecutiveFailures', 'Consecutive failures')}: {s.consecutive_failures}</span>
                         )}
                       </div>
                     </td>
