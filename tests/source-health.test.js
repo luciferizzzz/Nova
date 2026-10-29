@@ -10,18 +10,25 @@ const BASE = `http://127.0.0.1:${PORT}`
 const DB_PATH = path.join(os.tmpdir(), `nova-sh-${Date.now()}.db`)
 const ROOT = path.resolve(__dirname, '..')
 
+// Cookie jar minimal supaya request berikutnya ikut session login.
+let sessionCookie = ''
+
 function request(method, urlPath, body) {
   return new Promise((resolve, reject) => {
     const url = new URL(urlPath, BASE)
+    const headers = { 'Content-Type': 'application/json' }
+    if (sessionCookie) headers.Cookie = sessionCookie
     const req = http.request(
       {
         method,
         hostname: url.hostname,
         port: url.port,
         path: url.pathname + url.search,
-        headers: { 'Content-Type': 'application/json' }
+        headers
       },
       (res) => {
+        const setCookie = res.headers['set-cookie']
+        if (setCookie && setCookie.length) sessionCookie = setCookie[0].split(';')[0]
         let data = ''
         res.on('data', (c) => (data += c))
         res.on('end', () => {
@@ -55,7 +62,7 @@ function run() {
   return new Promise((resolve, reject) => {
     const child = spawn('node', ['cli/nova.js'], {
       cwd: ROOT,
-      env: { ...process.env, PORT: String(PORT), DATABASE_PATH: DB_PATH, NODE_ENV: 'test' },
+      env: { ...process.env, PORT: String(PORT), HOST: '127.0.0.1', DATABASE_PATH: DB_PATH, NODE_ENV: 'test' },
       stdio: ['ignore', 'pipe', 'pipe']
     })
     const out = []
