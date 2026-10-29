@@ -1,6 +1,6 @@
 {
   "name": "nova-backend",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "NOVA backend server",
   "private": true,
   "type": "commonjs",

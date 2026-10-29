@@ -1,7 +1,7 @@
 {
     "name": "nova",
-    "version": "2.0.0",
-    "description": "NOVA — Local News Intelligence System",
+    "version": "2.0.1",
+    "description": "NOVA â€” Local News Intelligence System",
     "private": true,
     "type": "commonjs",
     "bin": {

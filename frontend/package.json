@@ -1,6 +1,6 @@
 {
     "name": "nova-frontend",
-    "version": "2.0.0",
+    "version": "2.0.1",
     "description": "NOVA frontend",
     "private": true,
     "type": "module",
