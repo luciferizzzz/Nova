@@ -1004,6 +1004,8 @@ button {
   height: 320px;
   margin-bottom: 16px;
   display: flex;
+  position: relative;
+  overflow: hidden;
 }
 
 .globe-placeholder {
@@ -1039,10 +1041,6 @@ button {
    Kotak .globe-panel jadi wadah Relative, overlay teksnya melayang di atas
    canvas dengan pointer-events:none supaya tidak menghalangi drag/zoom globe
    (hanya tombolnya yang dikembalikan ke auto). */
-.globe-panel {
-  position: relative;
-  overflow: hidden;
-}
 
 .globe-mini-canvas {
   flex: 1;
